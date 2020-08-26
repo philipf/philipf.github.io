@@ -4,6 +4,20 @@
     
     
     <url>
+        <loc>https://blog.notnot.ninja/about/</loc>
+        <lastmod>2020-08-26T18:47:54+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/cool-stuff/</loc>
+        <lastmod>2020-08-26T00:00:00+00:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
         <loc>https://blog.notnot.ninja/</loc>
         <lastmod>2020-08-02T23:59:50+02:00</lastmod>
     </url>
@@ -34,20 +48,6 @@
     <url>
         <loc>https://blog.notnot.ninja/tags/</loc>
         <lastmod>2020-08-02T23:59:50+02:00</lastmod>
-    </url>
-    
-    
-    
-    <url>
-        <loc>https://blog.notnot.ninja/cool-stuff/</loc>
-        <lastmod>2016-06-24T00:00:00+00:00</lastmod>
-    </url>
-    
-    
-    
-    <url>
-        <loc>https://blog.notnot.ninja/about/</loc>
-        <lastmod>2016-06-16T18:48:54+01:00</lastmod>
     </url>
     
     

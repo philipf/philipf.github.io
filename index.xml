@@ -15,6 +15,28 @@
         
         
         <item>
+            <title>About</title>
+            <link>https://blog.notnot.ninja/about/</link>
+            <pubDate>Wed, 26 Aug 2020 18:47:54 +1200</pubDate>
+            <author>philip.fourie@gmail.com (Philip Fourie)</author>
+            <guid>https://blog.notnot.ninja/about/</guid>
+            <description>Add content here</description>
+        </item>
+        
+        
+        
+        <item>
+            <title>Cool stuff</title>
+            <link>https://blog.notnot.ninja/cool-stuff/</link>
+            <pubDate>Wed, 26 Aug 2020 00:00:00 +0000</pubDate>
+            <author>philip.fourie@gmail.com (Philip Fourie)</author>
+            <guid>https://blog.notnot.ninja/cool-stuff/</guid>
+            <description></description>
+        </item>
+        
+        
+        
+        <item>
             <title>Hello World</title>
             <link>https://blog.notnot.ninja/2020/08/02/hello-world/</link>
             <pubDate>Sun, 02 Aug 2020 23:59:50 +0200</pubDate>
@@ -25,33 +47,6 @@
    Source listings are not syntax-highlighted.
    Include directives don&amp;#8217;t work
    There&amp;#8217;s no icons with admonition blocks</description>
-        </item>
-        
-        
-        
-        <item>
-            <title>Cool stuff</title>
-            <link>https://blog.notnot.ninja/cool-stuff/</link>
-            <pubDate>Fri, 24 Jun 2016 00:00:00 +0000</pubDate>
-            <author>philip.fourie@gmail.com (Philip Fourie)</author>
-            <guid>https://blog.notnot.ninja/cool-stuff/</guid>
-            <description>A few book to posess        Database Internals: A Deep Dive into How Distributed Data Systems Work by Alex Petrov
-      BPF Performance Tools by Brendan Gregg
-      Growing Object Oriented Software, Guided by Tests by Steve Freeman and Nat Pryce
-      Reactive Design Patterns by Dr.</description>
-        </item>
-        
-        
-        
-        <item>
-            <title>About</title>
-            <link>https://blog.notnot.ninja/about/</link>
-            <pubDate>Thu, 16 Jun 2016 18:48:54 +0100</pubDate>
-            <author>philip.fourie@gmail.com (Philip Fourie)</author>
-            <guid>https://blog.notnot.ninja/about/</guid>
-            <description>I&amp;rsquo;m mostly a Java guy. I&amp;rsquo;m still trying to acquire new skills.
-I spent more than ten years on backends in various industries mostly as a consultant or a freelance contractor. Now I&amp;rsquo;m working at Blablacar.
-I used some of my free time as a mockito core commiter, contributing random stuff on various open source projects. Enjoying colaborative effort on opensource at some point I co-created the Hackergarten Paris with Mathilde Lemée and Éric Lefevre, now this event is the hands of Florent Biville.</description>
         </item>
         
         
