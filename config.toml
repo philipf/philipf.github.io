@@ -1,0 +1,233 @@
+# https://gohugo.io/getting-started/configuration/
+
+baseURL = "https://blog.notnot.ninja"
+
+title = "!!ninja"
+# copyright = "Philip Fourie — All rights reserved."
+
+theme = "hyde-hyde"
+
+# generate robots.txt
+enableRobotsTXT = true
+
+disqusShortname = "philipfgithubio"
+#googleAnalytics = "UA-175533459-1"
+
+languageCode = "en"
+
+# Content without language indicator will default to this language.
+defaultContentLanguage = "en-us"
+
+summarylength = 60
+
+canonifyURLs = false
+preserveTaxonomyNames = true
+
+# Remove accents from URL, otherwise they appear as url-encoded
+removePathAccents = true
+
+# Configure pagination
+paginate = 22
+paginatePath = "page"
+
+
+# Render the default content language in subdir, e.g. content/en/. 
+# The site root / will then redirect to /en/.
+# defaultContentLanguageInSubdir = false
+
+# Enable Emoji emoticons support for page content
+# See https://www.webpagefx.com/tools/emoji-cheat-sheet/
+enableEmoji = true
+
+
+[markup]
+#     [markup.goldmark]                   # This is the markdown rendered
+#         [markup.goldmark.renderer]
+#             unsafe = true               # Allow html (needed for some shortcodes)
+
+    [markup.highlight]
+        codeFences = false               # Disables goldmark chroma syntax highlighter
+
+
+[author]
+    name = "Philip Fourie"
+    email = "philip.fourie@gmail.com"
+    twitter = "pfourie"
+
+# for use in templates
+## Site Settings
+[params]
+    author = "Philip Fourie"
+    title = "Arkey"
+    authorimage = "/social-sharing.png"
+    # Site description
+    description = "Technical notes by Philip Fourie"
+
+
+    ### Twitter card / open graph
+    # Modified from universal theme
+    # https://github.com/devcows/hugo-universal-theme/blob/232f219ee77aee3b539ed18417c02e328c3b4630/layouts/partials/head.html#L59-L101
+    # https://github.com/devcows/hugo-universal-theme#meta-tags
+    images = ["/android-192-favicon.png"]
+    default_sharing_image = "/social-sharing.png"
+    defaultKeywords = ["java", "jvm", "system"]
+    defaultDescription = "Java mostly, and general tech"
+    twitter_author = "pfourie"
+    twitter_site = "pfourie"
+    ###
+
+    # Favicon file (relative to baseURL - place below static or assets folder)
+    # favicon = "favicon.png"
+    # Custom css file (relative to baseURL - place below static or assets folder)
+    # css = "custom.css"
+
+    # Define formatting of dates
+    # (optional, falls back to RFC822 format if not set)
+    # For reference to date and time formatting, see:
+    # https://gohugo.io/functions/format/#hugo-date-and-time-templating-reference
+    # Make sure to set showMetaDates to true to see any dates
+    dateformat = "2006-01-02"
+
+    # sidebar, copyright & license
+    copyright = "Philip Fourie"
+    since = 2020
+    license = "CC BY-SA 4.0"
+    licenseURL = "https://creativecommons.org/licenses/by-sa/4.0"
+    showBuiltWith = false
+
+    # https://highlightjs.org
+    highlightjs = true
+    highlightjsstyle = "a11y-light"
+    highlightjsdarkstyle = "gruvbox-dark"
+    # highlightjslanguages = ["..."]
+
+    # Table of contents
+    #toc = none, "hugo", or "tocbot"
+
+    mainSections = ["posts"]
+
+    landingLastPosts = 5
+    disqusIdentifierBaseURL = "https://philipf.github.io"
+
+    taxonomyIndexThreshold = 20
+
+## Social Accounts
+[params.social]
+    github = "philipf"
+    linkedin = "philipf"
+    twitter = "@pfourie"
+    stackoverflow = "1113/philip-fourie"
+    # email = "your-email@example.com"
+    gravatar = "philip.fourie@gmail.com"
+
+[permalinks]
+    posts = "/:year/:month/:day/:slug/"
+    drafts = "/:section/:year/:month/:day/:slug/"
+
+# Define all supported taxonomies (add series to the default)
+[taxonomies]
+    tags = "tags"
+    categories = "categories"
+    series = "series"
+
+
+
+[services.rss]
+    # limit the length of the rss feed (default: unlimited)
+    limit = 0
+
+
+[menu]
+    [[menu.main]]
+        # name = "Home"
+        pre = "<span class='fa-icon'><i class='fas fa-home'></i></span>Home"
+        url = "/"
+        weight = -100
+
+    # Configure main menu entries (header)
+    # Currently set to list all taxonomies and posts
+    [[menu.main]]
+        identifier = "post"
+        # name = "Posts"
+        title = "All posts"
+        pre = "<span class='fa-icon'><i class='fas fa-stream'></i></span>Posts"
+        url = "/posts/"
+        weight = 1
+
+    # [[menu.main]]
+    #     identifier = "categories"
+    #     name = "Categories"
+    #     title = "All categories"
+    #     url = "/categories/"
+    #     weight = 2
+
+    # [[menu.main]]
+    #     identifier = "series"
+    #     # name = "Series"
+    #     pre = "<span class='fa-icon'><i class='fas fa-list-alt'></i></span><code>grep -o <em>series</em> posts/* | sort -u</code>"
+    #     # pre = "<i class='fa fa-object-group'></i> <code>grep posts/* series | sort | uniq</code>"
+    #     title = "All series"
+    #     url = "/series/"
+    #     weight = 2
+
+    [[menu.main]]
+        identifier = "tags"
+        # name = "Tags"
+        pre = "<span class='fa-icon'><i class='fas fa-tags'></i></span>Tags"
+        title = "All tags"
+        url = "/tags/"
+        weight = 3
+
+    [[menu.main]]
+        identifier = "about"
+        # name = "Who Am I ?"
+        pre = "<span class='fa-icon'><i class='fas fa-id-card'></i></span>About"
+        title = "About me"
+        weight = 5
+        url = "/about/"
+
+    # [[menu.main]]
+    #     identifier = "coolstuff"
+    #     # name = "Cool stuff"
+    #     pre = "<span class='fa-icon'><i class='fas fa-thumbtack'></i></span><code>cd <em>cool-stuff</em></code>"
+    #     title = "Cool stuff"
+    #     weight = 4
+    #     url = "/cool-stuff/"
+
+    # Define the entries for post metadata
+    # Identifiers should match with the taxonomy entries
+    [[menu.meta]]
+        identifier = "categories"
+        name = "Categories"
+        weight = 1
+    [[menu.meta]]
+        identifier = "series"
+        name = "Series"
+        weight = 2
+    [[menu.meta]]
+        identifier = "tags"
+        name = "Tags"
+        weight = 3
+
+
+    # Add some footer links to your likings
+    [[menu.footer]]
+        name = "GitHub"
+        title = "Theme repository"
+        url = "https://github.com/philipf/philipf.github.io"
+        weight = 1
+
+# [params.search]
+# client = "fuse" # algolia / fuse / lunr
+
+# [languages]
+# # edit this block for your own language
+# [languages.en]
+# lang = "en"
+# languageName = "English"
+# weight = 1
+
+# [languages.fr]
+# lang = "fr"
+# languageName = "French"
+# weight = 1
