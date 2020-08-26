@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Tags on !!ninja</title>
+        <link>https://blog.notnot.ninja/tags/</link>
+        <description>Recent content in Tags on !!ninja</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <managingEditor>philip.fourie@gmail.com (Philip Fourie)</managingEditor>
+        <webMaster>philip.fourie@gmail.com (Philip Fourie)</webMaster>
+        <lastBuildDate>Sun, 02 Aug 2020 23:59:50 +0200</lastBuildDate>
+        
+        <atom:link href="https://blog.notnot.ninja/tags/index.xml" rel="self" type="application/rss+xml" />
+        
+        
+        
+        <item>
+            <title>hello-world</title>
+            <link>https://blog.notnot.ninja/tags/hello-world/</link>
+            <pubDate>Sun, 02 Aug 2020 23:59:50 +0200</pubDate>
+            <author>philip.fourie@gmail.com (Philip Fourie)</author>
+            <guid>https://blog.notnot.ninja/tags/hello-world/</guid>
+            <description></description>
+        </item>
+        
+        
+    </channel>
+</rss>
