@@ -1,0 +1,24 @@
+---
+layout: page
+date: "2020-08-29"
+title: About
+permalink: /about/
+categories: []
+author: Philip Fourie
+showcomments: false
+---
+{nbsp} +
+Before I forget this stuff (again), I better start writing it down!
+
+This blog's purpose is an exercise to improve my technical writing skills. And if I am lucky, maybe get the chance to help someone else out that is dealing with similar issues.
+
+My name is Philip Fourie, and I started writing software when GW-BASIC was what all the cool kids were doing. :smile: 
+[source,basic]
+----
+10 PRINT "MY SISTER IS THE SMARTEST" 
+20 GOTO 10 
+----
+
+In 2020 we moved from South Africa to New Zealand to start the next adventure in our lives. These days I am having fun building solutions with ever exciting cloud technologies.
+
+Feel free to leave a comment and share your thoughts and ideas.

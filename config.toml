@@ -11,7 +11,7 @@ theme = "hyde-hyde"
 enableRobotsTXT = true
 
 disqusShortname = "philipfgithubio"
-#googleAnalytics = "UA-175533459-1"
+googleAnalytics = "UA-175533459-1"
 
 languageCode = "en"
 
@@ -58,10 +58,10 @@ enableEmoji = true
 ## Site Settings
 [params]
     author = "Philip Fourie"
-    title = "Arkey"
+    title = "!!ninja"
     authorimage = "/social-sharing.png"
     # Site description
-    description = "Technical notes by Philip Fourie"
+    description = "My tech notes"
 
 
     ### Twitter card / open graph
@@ -70,8 +70,8 @@ enableEmoji = true
     # https://github.com/devcows/hugo-universal-theme#meta-tags
     images = ["/android-192-favicon.png"]
     default_sharing_image = "/social-sharing.png"
-    defaultKeywords = ["java", "jvm", "system"]
-    defaultDescription = "Java mostly, and general tech"
+    defaultKeywords = ["azure", "software", "design"]
+    defaultDescription = "Software architecture and design"
     twitter_author = "pfourie"
     twitter_site = "pfourie"
     ###
@@ -97,9 +97,9 @@ enableEmoji = true
 
     # https://highlightjs.org
     highlightjs = true
-    highlightjsstyle = "a11y-light"
-    highlightjsdarkstyle = "gruvbox-dark"
-    # highlightjslanguages = ["..."]
+    highlightjsstyle = "atom-one-dark"
+    highlightjsdarkstyle = "atom-one-dark"
+    highlightjslanguages = ["basic", "c#"]
 
     # Table of contents
     #toc = none, "hugo", or "tocbot"
@@ -115,8 +115,8 @@ enableEmoji = true
 [params.social]
     github = "philipf"
     linkedin = "philipf"
-    twitter = "@pfourie"
-    stackoverflow = "1113/philip-fourie"
+    twitter = "pfourie"
+    stackoverflow = "11123/philip-fourie"
     # email = "your-email@example.com"
     gravatar = "philip.fourie@gmail.com"
 
@@ -130,12 +130,9 @@ enableEmoji = true
     categories = "categories"
     series = "series"
 
-
-
 [services.rss]
     # limit the length of the rss feed (default: unlimited)
     limit = 0
-
 
 [menu]
     [[menu.main]]
