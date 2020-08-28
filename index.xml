@@ -17,21 +17,13 @@
         <item>
             <title>About</title>
             <link>https://blog.notnot.ninja/about/</link>
-            <pubDate>Wed, 26 Aug 2020 18:47:54 +1200</pubDate>
+            <pubDate>Sat, 29 Aug 2020 00:00:00 +0000</pubDate>
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/about/</guid>
-            <description>Add content here</description>
-        </item>
-        
-        
-        
-        <item>
-            <title>Cool stuff</title>
-            <link>https://blog.notnot.ninja/cool-stuff/</link>
-            <pubDate>Wed, 26 Aug 2020 00:00:00 +0000</pubDate>
-            <author>philip.fourie@gmail.com (Philip Fourie)</author>
-            <guid>https://blog.notnot.ninja/cool-stuff/</guid>
-            <description></description>
+            <description>&amp;#160;
+Before I forget this stuff (again), I better start writing it down!
+ This blog&amp;#8217;s purpose is an exercise to improve my technical writing skills. And if I am lucky, maybe get the chance to help someone else out that is dealing with similar issues.
+ My name is Philip Fourie, and I started writing software when GW-BASIC was what all the cool kids were doing.</description>
         </item>
         
         
