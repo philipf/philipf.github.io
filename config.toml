@@ -10,7 +10,7 @@ theme = "hyde-hyde"
 # generate robots.txt
 enableRobotsTXT = true
 
-disqusShortname = "philipfgithubio"
+disqusShortname = "notnotninja"
 googleAnalytics = "UA-175533459-1"
 
 languageCode = "en"
@@ -99,10 +99,11 @@ enableEmoji = true
     highlightjs = true
     highlightjsstyle = "atom-one-dark"
     highlightjsdarkstyle = "atom-one-dark"
-    highlightjslanguages = ["basic", "c#"]
+    highlightjslanguages = ["basic", "c#", "cmd", "bash", "powershell"]
 
     # Table of contents
     #toc = none, "hugo", or "tocbot"
+    #toc = "hugo"
 
     mainSections = ["posts"]
 

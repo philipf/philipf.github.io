@@ -1,0 +1,188 @@
+---
+authors: ["philip.fourie"]
+date: "2020-08-29T11:57:00+12:00"
+language: en
+draft: true
+tags: ["hyper-v", "linux", "networking"]
+slug: "lab-vm" 
+title: "Using Linux a VM as a network router in Hyper-V"
+series: ["Test site-to-site VPN for Azure"]
+---
+
+Occasionally, I need to spin up a few local virtual machines on my Windows 10 laptop to test a networking concept. Building a practical multi-machine configuration can be challenging. 
+For me, this typically means:
+
+- The VM host can connect to the guest VMs.
+- The guest VMs can connect to the host.
+- The guest VMs can connect to each other.
+- The guest VMs can access the Internet.
+- Other network devices can connect to my guest VMs.
+
+A simple solution may be to place the guest VMs on the same external network as the VM's host network and obtain the IP addresses dynamically or to set them statically. 
+Although this satisfies the listed requirements, it also means you don't you have full control over the network configuration.
+
+A particular issue for me is when I move between home and office networks, the IP ranges differ and require new IP addresses for my VMs. :cry:
+It also means certain tests, like running a DHCP server, is not a good idea or even possible.
+
+== The Solution Architecture
+
+The image below shows the network topology with two networks, the home or office network (`192.168.1.0/24`) and the VM network (`192.168.2.0/24`).
+
+image::/assets/lab-vm/Network.svg[Solution Architecture, width="60%",align="center"]
+
+The critical piece in this architecture is the *Router* with its two virtual Network Interface Cards (NICs).
+It connects the two networks by routing traffic between them. 
+Although connected, the virtual and physical network are still isolated from each other and won't allow network traffic such as DHCP broadcasts.
+
+CAUTION: Although the *Router* is, in a sense "bridging" traffic between the two networks, the term *Bridging* in networking is different from the routing explained here. 
+See https://en.wikipedia.org/wiki/Bridging_(networking):[Bridging on Wikipedia, window="_blank"] for more information.
+ +
+I am sure Bridging can provide similar results. 
+Still, I want to keep an option open to further control the routed traffic with something like https://en.wikipedia.org/wiki/Iptables:[iptables].
+
+A successful deployment should allow for communication between the following nodes on the network:
+
+[source,bash]
+.Network connectivity from the VM (`192.168.2.13`)
+----
+$ ping 192.168.1.1
+PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
+64 bytes from 192.168.1.1: icmp_seq=1 ttl=62 time=0.776 ms
+----
+
+and also from,
+
+[source,cmd]
+.Network connectivity from the physical network (`192.168.1.3` or  `192.168.1.4`)
+----
+> ping 192.168.2.13
+Pinging 192.168.2.13 with 32 bytes of data:
+Reply from 192.168.2.13: bytes=32 time<1ms TTL=63
+----
+
+== What you will need
+The table below list the components necessary to build the Solution Architecture; the network address ranges are configurable for your specific needs.
+
+[cols="1a,3,2a", options="header", width="75%"] 
+|===
+|Component
+|Purpose
+|Configuration
+
+| Network
+| Preferably a wired network but WiFi also works.
+| Nothing special
+
+|Your laptop/workstation +
+(`192.168.1.3`)
+| Virtual Machine Host
+|* Windows 10 (Pro, Enterprise or Education)
+* Hyper-V enabled
+* Enough memory to host the VMs
+
+| VM Guest +
+Linux Router +
+(`192.168.1.10`) +
+(`192.168.2.10`)
+| Virtualised Linux Router
+|* Debian 10.5
+* 256 MB memory
+* 2 GB disk space
+* 2x virtual NICs
+
+| VM Guest (Optional) +
+(`192.168.2.13`)
+|For testing connectivity
+|Your choice
+
+| Network router (Optional)
+| Provides Internet access, DHCP server and other network functions
+| Nothing special
+
+|===
+
+
+== Build instructions
+
+As evident from several guides on the Internet, there are many alternative techniques to build this virtualised network.
+I selected a configuration that suits my needs, which meant something that plays well with Windows 10, https://techcommunity.microsoft.com/t5/windows-kernel-internals/windows-sandbox/ba-p/301849:[Windows Sandbox],  WSL2 and Docker without having to buy or download additional software.
+
+NOTE: I used VirtualBox in the past but using it with Docker Desktop for Windows and Windows Sandbox creates problems that I wanted to avoid, so Hyper-V it is. :wink:
+
+=== Hyper-V setup
+
+https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v#enable-the-hyper-v-role-through-settings:[Enable the Hyper-V role] on your Windows 10 machine that will serve as the VM host.
+
+image::/assets/lab-vm/EnableHyperV.png[Turn Windows features on or off]
+
+Next, configure a new Virtual Switch for your network.
+You can think of the Virtual Switch as a software-defined version of a physical network switch.
+The Virtual Switch provides network connectivity to the selected VMs in the virtualised network.
+
+Open *Virtual Switch Manager...* from the Hyper-V management console.
+
+image::/assets/lab-vm/VirtualSwitchNew.png[Hyper-V management console]
+
+Press the *Create Virtual Switch* button and configure the switch as per the settings below:
+
+image::/assets/lab-vm/VirtualSwitchProperties.png[Configuration for Virtual Switch]
+
+[cols="1,2,2", options="header", width="75%"] 
+|===
+| Name
+| Value
+| Comment
+
+| Name
+| External (LAN)
+| The name can be anything descriptive
+
+| Connection type
+| External network -> Ethernet or WiFi connection
+| Ethernet is preferred, it is faster, but some people experienced issues with a WiFi configuration
+
+| Allow management operating system to share this network adapter
+| Yes
+| Share your existing network adapter between the host and guest VMs
+|===
+
+At this point, the newly created Virtual Switch is configured but not yet in use as it is not assigned to any VMs yet. 
+
+=== Router (192.168.1.10 & 192.168.2.10) setup
+The router is a virtual appliance with two virtual network interfaces that will connect the two network address ranges. 
+I selected Linux as the operating system for this task as it free,  simple to configure and only requires a small amount of system resources.
+
+I first tried this configuration with Ubuntu 20.04 server, and it worked as expected. Still, I wanted to reduce the resource footprint a bit and decided to use Debian 10.5 to do so.
+I am sure this can still be further optimised, but 1GB of hard disk space and 256MB of memory was sufficient for my use.
+
+. Download ISO
+. Create VM
+. Associate the newly created Virtual Switch *External(LAN)*
+. Add eth0 and eth1
+. Add DVD and boot sequence
+. Install OS
+. Configure network interfaces
+. Enable IP forwarding and remember to persist the settings
+. Install iptables
+. Configure iptables for masquerading
+
+=== VM Guest (192.168.2.13) setup
+
+This step is optional. Typically this VM runs a useful workload for development or testing purposes.
+It is up to you what you install on it as long as it belongs to the `192.168.2.0/24` address space. 
+I decided to install an Ubuntu 20.04 server with an SSH server onto it.
+
+=== Host VM (192.168.1.3) setup
+
+. List network interfaces. +
+`netsh int ipv4 show interfaces`
+
+. route add 192.168.2.0 MASK 255.255.255.0 192.168.1.10 METRIC 100 IF 48
+. route print
+. Optionally my the default gateway persistent
+
+== Testing the network
+
+Remember that Windows 10's firewall by default will block incoming traffic.
+
+== What is next?       
