@@ -99,7 +99,7 @@ enableEmoji = true
     highlightjs = true
     highlightjsstyle = "atom-one-dark"
     highlightjsdarkstyle = "atom-one-dark"
-    highlightjslanguages = ["basic", "c#", "cmd", "bash", "powershell"]
+    highlightjslanguages = ["basic", "c#", "console", "cmd", "Bash", "powershell"]
 
     # Table of contents
     #toc = none, "hugo", or "tocbot"

@@ -119,7 +119,6 @@ a {
 		}
 	}
 	&:hover {
-		@include link-hover();
 		&.tag {
 			@include link-no-decoration();
 		}

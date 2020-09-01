@@ -1,0 +1,37 @@
+## Settings
+# Download settings
+$DebianIsoUri = 'https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.5.0-amd64-netinst.iso'
+$InstallMedia = Join-Path $env:USERPROFILE 'debian.iso'
+
+# New VM settings
+$VmName = 'LinuxRouter'
+$VmPath = Join-Path $env:PROGRAMDATA Microsoft\Windows\Hyper-V 'Virtual Machines' 
+$VmVhdPath = Join-Path $env:PUBLIC Documents Hyper-V 'Virtual hard disks' "$VmName.vhdx"
+$ExternalSwitch = 'External (LAN)' # <1>
+$InternalSwitch = 'Internal Switch' # <2>
+$MemoryStartupBytes = 2GB # <3>
+$NewVHDSizeBytes = 2GB
+
+## Actions
+# Download ISO to the user's download folder
+# Invoke-WebRequest -Uri $DebianIsoUri -OutFile $InstallMedia
+
+# Create the VM for the Linux router
+New-VM -Name $VmName `
+    -NewVHDPath $VmVhdPath `
+    -MemoryStartupBytes $MemoryStartupBytes `
+    -NewVHDSizeBytes $NewVHDSizeBytes `
+    -Generation 2 `
+    -Switch $ExternalSwitch
+
+Add-VMNetworkAdapter -VMName $VmName -SwitchName $InternalSwitch    
+
+# Mount bootable ISO image
+Add-VMScsiController -VMName $VmName
+Add-VMDvdDrive -VMName $VMName -ControllerNumber 1 -ControllerLocation 0 -Path $InstallMedia
+$DvdDrive = Get-VMDvdDrive -VMName $VmName
+Set-VMFirmware -VMName $VmName -FirstBootDevice $DvdDrive -EnableSecureBoot Off
+
+## Start and connect to the VM
+Start-VM $VmName
+vmconnect.exe localhost $VmName
