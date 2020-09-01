@@ -17,7 +17,7 @@
     
     
 
-<title>Using Linux a VM as a network router in Hyper-V • !!ninja</title>
+<title>Build an isolated network with Hyper-V for a virtual lab • !!ninja</title>
 
 
 
@@ -34,7 +34,7 @@
     
 <meta property="og:locale" content="en">
 <meta property="og:site_name" content="!!ninja">
-<meta property="og:title" content="Using Linux a VM as a network router in Hyper-V">
+<meta property="og:title" content="Build an isolated network with Hyper-V for a virtual lab">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://blog.notnot.ninja/2020/08/29/lab-vm/" />
 <meta property="og:description" content="Software architecture and design">
@@ -53,7 +53,7 @@
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@pfourie">
-<meta name="twitter:title" content="Using Linux a VM as a network router in Hyper-V">
+<meta name="twitter:title" content="Build an isolated network with Hyper-V for a virtual lab">
 
 <meta name="twitter:image" content="https://blog.notnot.ninja/social-sharing.png">
 
@@ -65,7 +65,7 @@
 
 
 
-<link rel="stylesheet" href="/scss/hyde-hyde.a78527ced279d57dcd34c730618daa76f89d7b1f2aba9b958a497e040c97bd16.css" integrity="sha256-p4UnztJ51X3NNMcwYY2qdvidex8qupuVikl&#43;BAyXvRY=">
+<link rel="stylesheet" href="/scss/hyde-hyde.87df86aa94b6f1df927f1c69ab82169a2089fd16f33411d936ac250baf71d9d8.css" integrity="sha256-h9&#43;GqpS28d&#43;Sfxxpq4IWmiCJ/RbzNBHZNqwlC69x2dg=">
 
 
 <link rel="stylesheet" href="/scss/hyde-hyde-dark.2eddfb769610f72f40f6bc949e62a3acf298eb8504c073739085a417978b18cd.css" integrity="sha256-Lt37dpYQ9y9A9ryUnmKjrPKY64UEwHNzkIWkF5eLGM0=" media="(prefers-color-scheme: dark)">
@@ -104,7 +104,7 @@
 </head>
 
 
-    <body class="draft">
+    <body class="">
     
 <div class="sidebar">
   <div class="container ">
@@ -218,7 +218,7 @@
 
 <article>
   <header>
-    <h1>Using Linux a VM as a network router in Hyper-V</h1>
+    <h1>Build an isolated network with Hyper-V for a virtual lab</h1>
     
     
 <div class="post__meta">
@@ -247,21 +247,10 @@
     
     
     <br/>
-    <i class="fas fa-clock"></i> 13 min read
+    <i class="fas fa-clock"></i> 30 min read
 
     
     
-    
-        <div class="page-series">
-            <div class="title">In the same series :</div>
-            <ul>
-                
-                    
-                    <li hugo-nav="/2020/08/29/lab-vm/"><a href="https://blog.notnot.ninja/2020/08/29/lab-vm/"> Using Linux a VM as a network router in Hyper-V </a> </li>
-                    
-                
-            </ul>
-        </div>
     
 
 </div>
@@ -291,7 +280,7 @@ For me, this typically means:</p>
 <p>The guest VMs can access the Internet.</p>
 </li>
 <li>
-<p>Other network devices can connect to my guest VMs.</p>
+<p>And other network devices can connect to my guest VMs.</p>
 </li>
 </ul>
 </div>
@@ -304,18 +293,18 @@ Although this satisfies the listed requirements, it also means you don&#8217;t y
 It also means certain tests, like running a DHCP server, is not a good idea or even possible.</p>
 </div>
 <div class="sect1">
-<h2 id="_the_solution_architecture"><a class="anchor" href="#_the_solution_architecture"></a><a class="link" href="#_the_solution_architecture">The Solution Architecture</a></h2>
+<h2 id="_the_solution_design"><a class="anchor" href="#_the_solution_design"></a><a class="link" href="#_the_solution_design">The Solution Design</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The image below shows the network topology with two networks, the home or office network (<code>192.168.1.0/24</code>) and the VM network (<code>192.168.2.0/24</code>).</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="/assets/lab-vm/Network.svg" alt="Solution Architecture" width="60%">
+<img src="/assets/lab-vm/SolutionDesign.svg" alt="Solution Design" width="60%">
 </div>
 </div>
 <div class="paragraph">
-<p>The critical piece in this architecture is the <strong>Router</strong> with its two virtual Network Interface Cards (NICs).
+<p>The critical piece in this architecture is the <strong>Router</strong> with two virtual Network Interface Cards (NICs).
 It connects the two networks by routing traffic between them.
 Although connected, the virtual and physical network are still isolated from each other and won&#8217;t allow network traffic such as DHCP broadcasts.</p>
 </div>
@@ -336,10 +325,10 @@ Still, I want to keep an option open to further control the routed traffic with 
 </table>
 </div>
 <div class="paragraph">
-<p>A successful deployment should allow for communication between the following nodes on the network:</p>
+<p>A successful setup should allow for communication between the following nodes on the network:</p>
 </div>
 <div class="listingblock">
-<div class="title">Network connectivity from the VM (<code>192.168.2.13</code>)</div>
+<div class="title">Network connectivity from Carol (<code>192.168.2.13</code>)</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">$ ping 192.168.1.1
 PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
@@ -347,10 +336,10 @@ PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
 </div>
 </div>
 <div class="paragraph">
-<p>and also from,</p>
+<p>and also</p>
 </div>
 <div class="listingblock">
-<div class="title">Network connectivity from the physical network (<code>192.168.1.3</code> or  <code>192.168.1.4</code>)</div>
+<div class="title">Network connectivity from Alice (<code>192.168.1.3</code>) or Bob (<code>192.168.1.4</code>)</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="cmd" class="language-cmd hljs">&gt; ping 192.168.2.13
 Pinging 192.168.2.13 with 32 bytes of data:
@@ -363,7 +352,7 @@ Reply from 192.168.2.13: bytes=32 time&lt;1ms TTL=63</code></pre>
 <h2 id="_what_you_will_need"><a class="anchor" href="#_what_you_will_need"></a><a class="link" href="#_what_you_will_need">What you will need</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The table below list the components necessary to build the Solution Architecture; the network address ranges are configurable for your specific needs.</p>
+<p>The table below list the components necessary to build the Solution Design; the network address ranges are configurable for your specific needs.</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 75%;">
 <colgroup>
@@ -422,10 +411,10 @@ Linux Router<br>
 <p>Debian 10.5</p>
 </li>
 <li>
-<p>256 MB memory</p>
+<p>384 MB memory</p>
 </li>
 <li>
-<p>2 GB disk space</p>
+<p>1 GB disk space</p>
 </li>
 <li>
 <p>2x virtual NICs</p>
@@ -499,7 +488,7 @@ The Virtual Switch provides network connectivity to the selected VMs in the virt
 </div>
 </div>
 <div class="paragraph">
-<p>Press the <strong>Create Virtual Switch</strong> button and configure the switch as per the settings below:</p>
+<p>Press the <strong>Create Virtual Switch</strong> button and create a switch named <strong>External (LAN)</strong> and continue to configure the switch as per the rest of the settings below:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -542,76 +531,534 @@ The Virtual Switch provides network connectivity to the selected VMs in the virt
 </div>
 </div>
 <div class="sect2">
-<h3 id="_router_192_168_1_10_192_168_2_10_setup"><a class="anchor" href="#_router_192_168_1_10_192_168_2_10_setup"></a><a class="link" href="#_router_192_168_1_10_192_168_2_10_setup">Router (192.168.1.10 &amp; 192.168.2.10) setup</a></h3>
+<h3 id="_configuring_the_linux_router_192_168_1_10_192_168_2_10"><a class="anchor" href="#_configuring_the_linux_router_192_168_1_10_192_168_2_10"></a><a class="link" href="#_configuring_the_linux_router_192_168_1_10_192_168_2_10">Configuring the Linux Router (192.168.1.10 &amp; 192.168.2.10)</a></h3>
 <div class="paragraph">
-<p>The router is a virtual appliance with two virtual network interfaces that will connect the two network address ranges.
-I selected Linux as the operating system for this task as it free,  simple to configure and only requires a small amount of system resources.</p>
+<p>The router is a virtual appliance with two virtual NICs that connects the two networks.
+I selected Linux as the operating system for this task as it is free, simple to configure and only requires a small amount of system resources.</p>
 </div>
 <div class="paragraph">
-<p>I first tried this configuration with Ubuntu 20.04 server, and it worked as expected. Still, I wanted to reduce the resource footprint a bit and decided to use Debian 10.5 to do so.
-I am sure this can still be further optimised, but 1GB of hard disk space and 256MB of memory was sufficient for my use.</p>
+<p>I tested with Ubuntu 20.04 and it also works. Still, I wanted to reduce the resource footprint a bit and decided to use Debian 10.5 instead.
+I am sure this can still be further optimised, but 1GB of hard disk space and 256MB of memory was good enough for me.</p>
+</div>
+<div class="paragraph">
+<p>To create the VM run the Powershell commands below <strong>with Admin privileges</strong>.</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="/assets/lab-vm/create-router.ps1" target="_blank" rel="noopener">create-router.ps1</a></div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">## Settings
+# Download settings
+$DebianIsoUri = 'https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.5.0-amd64-netinst.iso'
+$InstallMedia = Join-Path $env:USERPROFILE 'debian.iso'
+
+# New VM settings
+$VmName = 'LinuxRouter'
+$VmPath = Join-Path $env:PROGRAMDATA Microsoft\Windows\Hyper-V 'Virtual Machines'
+$VmVhdPath = Join-Path $env:PUBLIC Documents Hyper-V 'Virtual hard disks' "$VmName.vhdx"
+$ExternalSwitch = 'External (LAN)' <i class="conum" data-value="1"></i><b>(1)</b>
+$InternalSwitch = 'Internal Switch' <i class="conum" data-value="2"></i><b>(2)</b>
+$MemoryStartupBytes = 2GB <i class="conum" data-value="3"></i><b>(3)</b>
+$NewVHDSizeBytes = 1GB
+
+## Actions
+# Download ISO to the user's download folder
+Invoke-WebRequest -Uri $DebianIsoUri -OutFile $InstallMedia <i class="conum" data-value="4"></i><b>(4)</b>
+
+# Create the VM for the Linux router
+New-VM -Name $VmName `
+    -NewVHDPath $VmVhdPath `
+    -MemoryStartupBytes $MemoryStartupBytes `
+    -NewVHDSizeBytes $NewVHDSizeBytes `
+    -Generation 1 `
+    -Switch $ExternalSwitch
+
+Add-VMNetworkAdapter -VMName $VmName -SwitchName $InternalSwitch
+Set-VMDvdDrive $VMName -ControllerNumber 1 -ControllerLocation 0 -Path $InstallMedia
+
+## Start and connect to the VM
+Start-VM $VmName
+vmconnect.exe localhost $VmName</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The name of the switch must match exactly with the newly created virtual switch, this will be <code>eth0</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This is the default Hyper-V switch, this will be <code>eth1</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The installation process requires more memory, and we will reduce it later in the process.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This is a 360MB download.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After running <code>create-router.ps1</code> the Router VM should be running and prompting you to start the Debian installation process.
+The installation is relatively straightforward, except for defining the partition table for a 1GB drive. Unfortunately, the <em>Guided partitioning</em> process fails because of the small 1GB drive. It requires the additional step of manually creating the partition table.</p>
+</div>
+<div class="paragraph">
+<p>The primary settings during the OS installation process are:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Download ISO</p>
+<p>Configure <code>eth0</code> for networking, <code>eth1</code> will be configured later.</p>
 </li>
 <li>
-<p>Create VM</p>
+<p>Manually create a partition with the following configuration:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Primary 1GB, ext4</p>
 </li>
 <li>
-<p>Associate the newly created Virtual Switch <strong>External(LAN)</strong></p>
-</li>
-<li>
-<p>Add eth0 and eth1</p>
-</li>
-<li>
-<p>Add DVD and boot sequence</p>
-</li>
-<li>
-<p>Install OS</p>
-</li>
-<li>
-<p>Configure network interfaces</p>
-</li>
-<li>
-<p>Enable IP forwarding and remember to persist the settings</p>
-</li>
-<li>
-<p>Install iptables</p>
-</li>
-<li>
-<p>Configure iptables for masquerading</p>
+<p>Logical 71MB, swap</p>
 </li>
 </ol>
 </div>
+</li>
+</ol>
 </div>
-<div class="sect2">
-<h3 id="_vm_guest_192_168_2_13_setup"><a class="anchor" href="#_vm_guest_192_168_2_13_setup"></a><a class="link" href="#_vm_guest_192_168_2_13_setup">VM Guest (192.168.2.13) setup</a></h3>
 <div class="paragraph">
-<p>This step is optional. Typically this VM runs a useful workload for development or testing purposes.
-It is up to you what you install on it as long as it belongs to the <code>192.168.2.0/24</code> address space.
-I decided to install an Ubuntu 20.04 server with an SSH server onto it.</p>
+<p>Alternatively view the <a href="/assets/lab-vm/DebianInstallGuide.pdf" target="_blank" rel="noopener">installation instructions</a> here.</p>
+</div>
+<div class="paragraph">
+<p>When the installation is done, update the current allocated memory by reducing it to <strong>384MB</strong>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">Stop-VM $VmName
+Set-VMMemory $VmName -StartupBytes 384MB -DynamicMemoryEnabled $false
+Start-Vm $VmName</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, connect to the newly created Linux VM to set its network settings.
+I suggest using Hyper-V to connect to the VM and obtain its current IP address after that connect to it with a more convenient terminal.</p>
+</div>
+<div class="paragraph">
+<p>To obtain the IP address for <code>eth0</code>, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">ip -br a show dev eth0</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Update the Debian networking settings by updating the <code>/etc/network/interfaces</code> file.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">su -
+vi /etc/network/interfaces</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Update the contents of the file according to your network settings:</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/network/interfaces</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs"># This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug eth0
+
+#iface eth0 inet dhcp <i class="conum" data-value="1"></i><b>(1)</b>
+iface eth0 inet static
+  address 192.168.1.10 <i class="conum" data-value="2"></i><b>(2)</b>
+  netmask 255.255.255.0
+  gateway 192.168.1.1 <i class="conum" data-value="3"></i><b>(3)</b>
+
+# The secondary network interface
+allow-hotplug eth1
+iface eth1 inet static
+  address 192.168.2.10  <i class="conum" data-value="4"></i><b>(4)</b>
+  netmask 255.255.255.0</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Commented in case <code>eth0</code> should obtain an allocated IP address from the DHCP server instead.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This should be an available IP address on the physical network.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The default gateway on the physical network.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The secondary IP address (<code>eth1</code>) for the Linux Router.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Apply the new network settings with the following commands
+(If you are connected with SSH you will be disconnected when the network settings for <code>eth0</code> kicks in).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">su - <i class="conum" data-value="1"></i><b>(1)</b>
+ifup eth1
+ifdown eth0; ifup eth0</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Execute the following commands as the <code>root</code> user, make sure to use the password that you specified during the Debian installation process.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To route packets between the two networks, IP forwarding has to been enabled on the Linux Router.
+While connected to the Linux Router <code>192.168.1.10</code> perform the following steps.</p>
+</div>
+<div class="paragraph">
+<p>Update <code>/etc/sysctl.conf</code> with the setting below to enable forwarding and also to persist the setting when the VM restarts.</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/sysctl.conf</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">net.ipv4.ip_forward=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Apply the change by running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">sysctl -p /etc/sysctl.conf</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">modprobe iptable_nat
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -A FORWARD -i eth1 -j ACCEPT
+apt install iptables-persistent <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>iptables-persistent</code> persist the iptable settings between reboots, when prompted choose to save rules for ipv4.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>At this point, it should be possible to run the following commands from the Linux Router successfully:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">ping 192.168.1.1
+ping 192.168.1.3 <i class="conum" data-value="1"></i><b>(1)</b>
+ping 192.168.2.13 <i class="conum" data-value="2"></i><b>(2)</b>
+ping www.google.com</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Make sure Windows 10&#8217;s firewall is not blocking traffic.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Optional, if the VM already exists.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The hard work has been done, and we are only left with a few small steps on the other network nodes. 😅</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_host_vm_192_168_1_3_setup"><a class="anchor" href="#_host_vm_192_168_1_3_setup"></a><a class="link" href="#_host_vm_192_168_1_3_setup">Host VM (192.168.1.3) setup</a></h3>
-<div class="olist arabic">
-<ol class="arabic">
+<h3 id="_a_quick_note_about_network_gateways"><a class="anchor" href="#_a_quick_note_about_network_gateways"></a><a class="link" href="#_a_quick_note_about_network_gateways">A quick note about Network Gateways</a></h3>
+<div class="paragraph">
+<p>To route traffic between different networks, the help of network gateways is needed.
+Routing tables on each client contains rules that indicates which gateway to use for a given destination.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<svg
+ viewBox="0.00 0.00 806.70 269.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900px" height="357px">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(3.6 265.6)">
+<title>network</title>
+<polygon fill="transparent" stroke="transparent" points="-3.6,3.6 -3.6,-265.6 803.1,-265.6 803.1,3.6 -3.6,3.6"/>
+<!-- alice -->
+<g id="node1" class="node">
+<title>alice</title>
+<polygon fill="#1b9e77" stroke="black" points="152,-54 44,-54 44,0 152,0 152,-54"/>
+<text text-anchor="middle" x="98" y="-30.8" font-family="system-ui" font-size="14.00" fill="white">Alice</text>
+<text text-anchor="middle" x="98" y="-15.8" font-family="system-ui" font-size="14.00" fill="white">192.168.1.3</text>
+</g>
+<!-- bob -->
+<g id="node2" class="node">
+<title>bob</title>
+<polygon fill="#1b9e77" stroke="black" points="361,-54 253,-54 253,0 361,0 361,-54"/>
+<text text-anchor="middle" x="307" y="-30.8" font-family="system-ui" font-size="14.00" fill="white">Bob</text>
+<text text-anchor="middle" x="307" y="-15.8" font-family="system-ui" font-size="14.00" fill="white">192.168.1.4</text>
+</g>
+<!-- carol -->
+<g id="node3" class="node">
+<title>carol</title>
+<polygon fill="#d95f02" stroke="black" points="587.5,-54 476.5,-54 476.5,0 587.5,0 587.5,-54"/>
+<text text-anchor="middle" x="532" y="-30.8" font-family="system-ui" font-size="14.00" fill="white">Carol</text>
+<text text-anchor="middle" x="532" y="-15.8" font-family="system-ui" font-size="14.00" fill="white">192.168.2.12</text>
+</g>
+<!-- dave -->
+<g id="node4" class="node">
+<title>dave</title>
+<polygon fill="#d95f02" stroke="black" points="799.5,-54 688.5,-54 688.5,0 799.5,0 799.5,-54"/>
+<text text-anchor="middle" x="744" y="-30.8" font-family="system-ui" font-size="14.00" fill="white">Dave</text>
+<text text-anchor="middle" x="744" y="-15.8" font-family="system-ui" font-size="14.00" fill="white">192.168.2.13</text>
+</g>
+<!-- gwd -->
+<g id="node5" class="node">
+<title>gwd</title>
+<polygon fill="#666666" stroke="black" points="251,-262 107,-262 107,-208 251,-208 251,-262"/>
+<text text-anchor="middle" x="179" y="-238.8" font-family="system-ui" font-size="14.00" fill="white">Default</text>
+<text text-anchor="middle" x="179" y="-223.8" font-family="system-ui" font-size="14.00" fill="white">Gateway</text>
+</g>
+<!-- internet -->
+<g id="node7" class="node">
+<title>internet</title>
+<ellipse fill="#7570b3" stroke="black" cx="65" cy="-131" rx="65" ry="27"/>
+<text text-anchor="middle" x="65" y="-127.3" font-family="system-ui" font-size="14.00" fill="white">Internet</text>
+</g>
+<!-- gwd&#45;&#45;internet -->
+<g id="edge1" class="edge">
+<title>gwd&#45;&#45;internet</title>
+<path fill="none" stroke="black" d="M149.94,-208C131.99,-191.94 109.14,-171.5 91.66,-155.86"/>
+<text text-anchor="middle" x="81.42" y="-189.96" font-family="system-ui" font-size="14.00">203.150.52.6</text>
+</g>
+<!-- subnet1 -->
+<g id="node8" class="node">
+<title>subnet1</title>
+<ellipse fill="#1b9e77" stroke="black" cx="300" cy="-131" rx="69.16" ry="27"/>
+<text text-anchor="middle" x="300" y="-127.3" font-family="system-ui" font-size="14.00" fill="white">192.168.1.0/24</text>
+</g>
+<!-- gwd&#45;&#45;subnet1 -->
+<g id="edge2" class="edge">
+<title>gwd&#45;&#45;subnet1</title>
+<path fill="none" stroke="black" d="M209.85,-208C228.89,-191.94 253.14,-171.5 271.7,-155.86"/>
+<text text-anchor="middle" x="267.77" y="-188.64" font-family="system-ui" font-size="14.00">192.168.1.1</text>
+</g>
+<!-- gw1 -->
+<g id="node6" class="node">
+<title>gw1</title>
+<polygon fill="#666666" stroke="black" points="553,-262 409,-262 409,-208 553,-208 553,-262"/>
+<text text-anchor="middle" x="481" y="-238.8" font-family="system-ui" font-size="14.00" fill="white">Lab</text>
+<text text-anchor="middle" x="481" y="-223.8" font-family="system-ui" font-size="14.00" fill="white">Gateway</text>
+</g>
+<!-- gw1&#45;&#45;subnet1 -->
+<g id="edge3" class="edge">
+<title>gw1&#45;&#45;subnet1</title>
+<path fill="none" stroke="black" d="M434.86,-208C405.01,-191.18 366.6,-169.53 338.42,-153.65"/>
+<text text-anchor="middle" x="366.49" y="-189.26" font-family="system-ui" font-size="14.00">192.168.1.10 &#160;&#160;&#160;</text>
+</g>
+<!-- subnet2 -->
+<g id="node9" class="node">
+<title>subnet2</title>
+<ellipse fill="#d95f02" stroke="black" cx="539" cy="-131" rx="69.16" ry="27"/>
+<text text-anchor="middle" x="539" y="-127.3" font-family="system-ui" font-size="14.00" fill="white">192.168.2.0/24</text>
+</g>
+<!-- gw1&#45;&#45;subnet2 -->
+<g id="edge4" class="edge">
+<title>gw1&#45;&#45;subnet2</title>
+<path fill="none" stroke="black" d="M495.79,-208C504.58,-192.53 515.69,-173 524.44,-157.6"/>
+<text text-anchor="middle" x="553.64" y="-188.39" font-family="system-ui" font-size="14.00">192.168.2.10</text>
+</g>
+<!-- subnet1&#45;&#45;alice -->
+<g id="edge5" class="edge">
+<title>subnet1&#45;&#45;alice</title>
+<path fill="none" stroke="black" d="M258.63,-109.11C227.12,-93.2 183.55,-71.2 149.73,-54.12"/>
+</g>
+<!-- subnet1&#45;&#45;bob -->
+<g id="edge6" class="edge">
+<title>subnet1&#45;&#45;bob</title>
+<path fill="none" stroke="black" d="M301.78,-104C302.83,-88.77 304.15,-69.59 305.19,-54.31"/>
+</g>
+<!-- subnet2&#45;&#45;carol -->
+<g id="edge7" class="edge">
+<title>subnet2&#45;&#45;carol</title>
+<path fill="none" stroke="black" d="M537.22,-104C536.17,-88.77 534.85,-69.59 533.81,-54.31"/>
+</g>
+<!-- subnet2&#45;&#45;dave -->
+<g id="edge8" class="edge">
+<title>subnet2&#45;&#45;dave</title>
+<path fill="none" stroke="black" d="M580.48,-109.36C612.54,-93.41 657.12,-71.23 691.63,-54.06"/>
+</g>
+</g>
+</svg>
+</div>
+<div class="title">Gateway example</div>
+</div>
+<div class="paragraph">
+<p>In this example, when <em>Alice</em> communicates with <em>Dave</em>, the routing rules for <em>Alice</em> contains something like "send all 192.168.2.0/24 traffic to 192.168.1.10".</p>
+</div>
+<div class="paragraph">
+<p>A slightly more involved scenario is when <em>Carol</em> wants to access the Internet, it requires an additional gateway hop.</p>
+</div>
+<div class="ulist">
+<ul>
 <li>
-<p>List network interfaces.<br>
-<code>netsh int ipv4 show interfaces</code></p>
+<p>The first routing rule on Carol&#8217;s machine is to send all undefined traffic (0.0.0.0) to 192.168.2.10</p>
 </li>
 <li>
-<p>route add 192.168.2.0 MASK 255.255.255.0 192.168.1.10 METRIC 100 IF 48</p>
+<p>The second routing rule on the Lab Gateway is to send all undefined traffic (0.0.0.0) to 192.168.1.1</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_alice_192_168_1_3_and_bob_192_168_1_4"><a class="anchor" href="#_configuring_alice_192_168_1_3_and_bob_192_168_1_4"></a><a class="link" href="#_configuring_alice_192_168_1_3_and_bob_192_168_1_4">Configuring Alice (192.168.1.3) and Bob (192.168.1.4)</a></h3>
+<div class="paragraph">
+<p>To access network devices on <code>192.168.2.0/24</code>, a routing rule is required for devices on the <code>192.168.1.0/24</code> network.
+This routing rule can be implemented in two ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Local routing on each machine</strong>,
+This can be useful if you want to limit the routing to specific machines or if you don&#8217;t have access to the routing table on the default gateway <code>192.168.1.1</code>.
+For an office network, this is a safe option when you don&#8217;t want to route everyone&#8217;s traffic to your network lab.</p>
 </li>
 <li>
-<p>route print</p>
+<p><strong>Update the routing table on the default gateway.</strong>
+This has the advantage that all clients on the source network gets the benefit of a single route rule entry.
+This is my configuration for my home network, and I achieve this by updating my Asus router with an additional routing rule.</p>
 </li>
-<li>
-<p>Optionally my the default gateway persistent</p>
-</li>
-</ol>
+</ul>
+</div>
+<div class="paragraph">
+<p>To add a routing rule on Alice and Bob run the following Powershell commands as Admin:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">$adapter = Get-NetAdapter |
+Where-Object {$_.Name -like '*External*LAN*'} | <i class="conum" data-value="1"></i><b>(1)</b>
+Select-Object -Property ifIndex, Name
+
+New-NetRoute `
+-DestinationPrefix '192.168.2.0/24' `
+-InterfaceIndex $adapter.ifIndex `
+-NextHop 192.168.1.10</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Make sure the virtual switch is named External (LAN) for this command to find the correct network adapter.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To confirm the entry has been added to the local routing table run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">Get-NetRoute | Where-Object {$_.DestinationPrefix -eq '192.168.2.0/24'} | Format-Table -AutoSize</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and it should show the following result (your network interface index might differ)</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">ifIndex DestinationPrefix NextHop      RouteMetric ifMetric PolicyStore
+------- ----------------- -------      ----------- -------- -----------
+2       192.168.2.0/24    192.168.1.10         256 25       ActiveStore</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At this point, you should be able to ping <code>Carol</code> and <code>Dave</code> and the Linux Router on <code>192.168.2.10</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Alternatively, you can also perform the routing rules in an elevated <code>Command Prompt</code>.
+This produces the same results, but Powershell makes it a bit easier to script the commands (😉 use Powershell).
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="cmd" class="language-cmd hljs">netsh int ipv4 show interfaces <i class="conum" data-value="1"></i><b>(1)</b>
+pause
+route -p ADD 192.168.2.0 MASK 255.255.255.0 192.168.1.10 METRIC 100 IF 2<i class="conum" data-value="2"></i><b>(2)</b>
+route PRINT <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Lists all the network adapters to obtain its interface index for the next command.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Replace the IF value of <code>2</code> with the network index for the adapter named <code>vEthernet (External (LAN))</code> that was returned from the previous command. Also, note the <code>-p</code> switch to persist the rule between system restarts.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Confirm that the network setting has taken effect by reviewing the <code>Persistent Routes</code> section if <code>-p</code> was specified.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>When your testing is complete and want to remove the routing rules, run one of the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="title">Powershell: Delete route</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">Remove-NetRoute -DestinationPrefix '192.168.2.0/24'</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Command Prompt: Delete route</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="cmd" class="language-cmd hljs">route DELETE 192.168.2.0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_carol_192_168_2_13_and_dave_192_168_2_14"><a class="anchor" href="#_configuring_carol_192_168_2_13_and_dave_192_168_2_14"></a><a class="link" href="#_configuring_carol_192_168_2_13_and_dave_192_168_2_14">Configuring Carol (192.168.2.13) and Dave (192.168.2.14)</a></h3>
+<div class="paragraph">
+<p>This step is optional.</p>
+</div>
+<div class="paragraph">
+<p>Typically, these VMs runs useful workloads for development or testing purposes, and it is up to you what you install on them.
+For these machines to access the Internet and the <code>192.168.1.0/24</code> network, make sure these machines have a <strong>default gateway of <code>192.168.2.10</code></strong>.</p>
 </div>
 </div>
 </div>
@@ -620,14 +1067,78 @@ I decided to install an Ubuntu 20.04 server with an SSH server onto it.</p>
 <h2 id="_testing_the_network"><a class="anchor" href="#_testing_the_network"></a><a class="link" href="#_testing_the_network">Testing the network</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Remember that Windows 10&#8217;s firewall by default will block incoming traffic.</p>
+<p>At this point, you should be able to communicate between all nodes on either of the networks.</p>
+</div>
+<div class="paragraph">
+<p>The following tests should all work:</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Keep in mind that Windows 10&#8217;s firewall will block incoming traffic by default and that you might want to adjust Windows Defender Firewall rules accordingly.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">From Alice and Bob (<code>192.168.1.0/24</code>)</div>
+<div class="content">
+<pre>ping 192.168.1.10
+ping 192.168.2.10
+ping 192.168.2.13</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">From the Linux Router</div>
+<div class="content">
+<pre>ping 192.168.1.1
+ping 192.168.1.3 <i class="conum" data-value="1"></i><b>(1)</b>
+ping 192.168.1.4
+ping 192.168.2.13
+ping 192.168.2.14
+ping 1.1.1.1
+ping www.google.com <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Make sure Windows 10&#8217;s firewall is not blocking ICMP traffic.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Review <code>/etc/resolv.conf</code> to ensure a valid DNS resolver is configured.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">From Carol and Dave (<code>192.168.2.0/24</code>)</div>
+<div class="content">
+<pre>ping 192.168.2.10
+ping 192.168.1.1
+ping 192.168.1.3
+ping 192.168.1.4
+ping 1.1.1.1
+ping www.google.com</pre>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_what_is_next"><a class="anchor" href="#_what_is_next"></a><a class="link" href="#_what_is_next">What is next?</a></h2>
 <div class="sectionbody">
-
+<div class="paragraph">
+<p>We are done, and you should have an isolated network environment for your test lab. 👊</p>
+</div>
+<div class="paragraph">
+<p>It might be useful to automate the process of switching between networks if you move between home and office networks often.
+This can be accomplished by scripting the required changes on the Linux router and your machine.</p>
+</div>
 </div>
 </div>
 
@@ -636,18 +1147,35 @@ I decided to install an Ubuntu 20.04 server with an SSH server onto it.</p>
 
 <div class="navigation navigation-single">
     
-    <a href="/2020/08/02/hello-world/" class="navigation-prev">
-      <i aria-hidden="true" class="fa fa-chevron-left"></i>
-      <span class="navigation-tittle">Hello World</span>
-    </a>
-    
     
 </div>
 
 
   
 
-  
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+        
+        
+        
+        this.page.identifier = 'https://philipf.github.io/2020/08/29/lab-vm/';
+        this.page.title = 'Build an isolated network with Hyper-V for a virtual lab';
+        this.page.url = 'https://philipf.github.io/2020/08/29/lab-vm/';
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "notnotninja" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
 </article>
 
@@ -681,14 +1209,15 @@ if (!doNotTrack) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/basic.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/c#.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/console.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/cmd.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/Bash.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/powershell.min.js"></script>
         
     
     <script type="text/javascript">
         
-        hljs.configure({languages: ["basic, c#, cmd, bash, powershell"]});
+        hljs.configure({languages: ["basic, c#, console, cmd, Bash, powershell"]});
         
         hljs.initHighlightingOnLoad();
     </script>

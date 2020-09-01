@@ -29,7 +29,7 @@ Before I forget this stuff (again), I better start writing it down!
         
         
         <item>
-            <title>Using Linux a VM as a network router in Hyper-V</title>
+            <title>Build an isolated network with Hyper-V for a virtual lab</title>
             <link>https://blog.notnot.ninja/2020/08/29/lab-vm/</link>
             <pubDate>Sat, 29 Aug 2020 11:57:00 +1200</pubDate>
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
@@ -38,21 +38,6 @@ Before I forget this stuff (again), I better start writing it down!
    The VM host can connect to the guest VMs.
   The guest VMs can connect to the host.
   The guest VMs can connect to each other.</description>
-        </item>
-        
-        
-        
-        <item>
-            <title>Hello World</title>
-            <link>https://blog.notnot.ninja/2020/08/02/hello-world/</link>
-            <pubDate>Sun, 02 Aug 2020 23:59:50 +0200</pubDate>
-            <author>philip.fourie@gmail.com (Philip Fourie)</author>
-            <guid>https://blog.notnot.ninja/2020/08/02/hello-world/</guid>
-            <description>Hello World, always the beginning While Hugo comes with Asciidoctor support, they are in reality several issues to account for at this time:
- While basic rendering of asciidoc files works, we soon encounter problems ; the very first
-   Source listings are not syntax-highlighted.
-   Include directives don&amp;#8217;t work
-   There&amp;#8217;s no icons with admonition blocks</description>
         </item>
         
         
