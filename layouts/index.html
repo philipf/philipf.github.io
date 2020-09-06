@@ -38,9 +38,11 @@
 {{ end }}
 
 {{ define "footer" }}
-  {{ if .Site.GoogleAnalytics }}
-    <!-- Google Analytics -->
-    {{ template "_internal/google_analytics_async.html" . }}
+  {{ if not .Site.IsServer }}
+    {{ if .Site.GoogleAnalytics }}
+      <!-- Google Analytics -->
+      {{ template "_internal/google_analytics_async.html" . }}
+    {{ end }}
   {{ end }}
   {{ partial "footer/font-awesome-js.html" . }}
 {{ end }}
