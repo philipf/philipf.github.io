@@ -237,7 +237,7 @@ iface eth1 inet static
   netmask 255.255.255.0
 ----
 
-<1> Commented in case `eth0` should obtain an allocated IP address from the DHCP server instead.
+<1> Commented in case `eth0` should be obtained from a DHCP reservation.
 <2> This should be an available IP address on the physical network.
 <3> The default gateway on the physical network.
 <4> The secondary IP address (`eth1`) for the Linux Router.
