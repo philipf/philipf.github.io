@@ -4,3 +4,6 @@
 [submodule "builder"]
 	path = builder
 	url = https://github.com/philipf/hugo-builder.git
+[submodule "static/assets/azure-site-to-site-vpn/azure-s2s-template"]
+	path = static/assets/azure-site-to-site-vpn/azure-s2s-template
+	url = git@github.com:philipf/azure-s2s-template.git

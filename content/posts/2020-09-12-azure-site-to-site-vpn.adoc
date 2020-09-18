@@ -1,0 +1,138 @@
+---
+authors: ["Philip Fourie"]
+date: "2020-09-19T8:42:00+12:00"
+language: en
+draft: false
+tags: ["azure", "linux", "networking", "ipsec"]
+slug: "azure-site-to-site-vpn" 
+title: "Build an Azure site-to-site VPN for DevTest"
+series: ["Azure Site-to-Site VPN for DevTest"]
+---
+
+Integration testing in a hybrid cloud architecture can be challeging when you have to test between on-premises resources and cloud workloads.
+https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal[Azure's site-to-site VPN] make it possible to extend your on-premises network to private virtual networks on the cloud.
+
+Normally, such a setup requires hardware that supports https://en.wikipedia.org/wiki/IPsec[IPsec] VPN.
+This can be problem if you don't have access to such an appliance or if you don't want the whole network to be affected by such a configuration.
+
+This post describes how to use Libreswan as a software based IPSev VPN solution to connect to an Azure virtual gateway.
+
+WARNING: Although this configuration works well for DevTest purposes it not recommended be used for production scenarios.
+
+== The Solution Design
+The design below shows the a base configuration that can be modified that connects an Azure Virtual Network (VNet) with an on-premises network.
+
+In this configuration `Foxtrot` can route traffic between `192.168.1.0/24` and `192.168.3.32/24`, thereby connecting resources such as `Alice` and `vm-echo` with each other.
+
+image::/assets/azure-site-to-site-vpn/Azure-S2S-network.svg[Solution Design, align="center"]
+
+The _Left_ side of network use standard Azure site-to-site components while the _Right_ side of the network uses https://libreswan.org/[Libreswan], a free open-source implementation of IPsec VPN.
+
+== Pre-requisites
+To build this configuration, you'll need the following:
+
+- An active Azure subscription.
+- Local network
+- A Linux instance to run https://libreswan.org/:[Libreswan VPN software], preferably a dedicated VM. The installation script in this post was tested against Debian 10.05 and Ubuntu 20.04 (Compilation of Libreswan failed on Ubuntu 18.04).
+- Modem/router to configure Firewall/NAT rules
+
+== Quick Start
+For the impatient, get going quickly by running the following steps, otherwise skip to <<Provision Azure Resources>>:
+
+. Click the *Deploy to Azure* button to deploy the Azure S2S resources to your Azure subscription. 
+The content of the ARM template can be https://github.com/philipf/azure-s2s-template/blob/master/template.json[viewed here].
++ 
+{{<azdeploy "https://raw.githubusercontent.com/philipf/azure-s2s-template/master/template.json">}} 
+
+. Wait about *45 minutes* for the Azure Virtual Gateway to be provisioned. You'll need the pre-shared key (PSK) and the Virtual Gateway public IP (VGW VIP) from the previous step.
+
+. *Install Libreswan* on `Ubuntu 20.04` or `Debian 10.05`, by running:
++  
+[source, bash]
+----
+sudo sh -c "$(wget -qO- https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install-libreswan.sh)"
+----
+. Port forward *UDP 4500* and *UDP 500* from the public Internet to `Foxtrot` on your modem/router.
+. *Test connectivity* by pinging `vm-echo` from `Foxtrot` and the visa versa
+
+At this point you should have a connected site-to-site VPN.
+
+== Provision Azure Resources
+Start with following steps if you haven't performed the steps in the <<Quick Start>> section.
+
+The Azure resources can be provisioned by either:
+
+- Deploying the ARM template, the easier option.
+- Or by running the PowerShell script, the more programmable option.
+
+=== Using the ARM template
+By far the easiest way is to deploy the https://github.com/philipf/azure-s2s-template/blob/master/template.json[ARM template] by clicking:
+ 
+{{<azdeploy "https://raw.githubusercontent.com/philipf/azure-s2s-template/master/template.json">}} 
+
+or deploy it with the https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-portal#deploy-resources-from-custom-template[Azure Portal],
+https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-cli#deploy-local-template[Azure CLI] 
+or https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-powershell#deploy-local-template[Azure PowerShell].
+
+=== Using PowerShell
+*Update the configuration variables* in the the PowerShell script below and run it to provision the Azure site-to-site resources.
+This can be run from either the https://docs.microsoft.com/en-us/azure/cloud-shell/overview[Azure Cloud Shell] or locally with https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-4.6.1[Azure PowerShell]
+
+[source, powershell]
+.link:/assets/azure-site-to-site-vpn/azure-s2s-template/deploy-azure.ps1[deploy-azure.ps1, window="_blank"]
+----
+include::/src/static/assets/azure-site-to-site-vpn/azure-s2s-template/deploy-azure.ps1[]
+----
+<1> Supply your own significantly complex PSK, this key is used on both sides of the IPSec tunnel, and you'll will need it again as part of the Libreswan configuration.
+<2> By convention thhis https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-vpn-faq#do-i-need-a-gatewaysubnet[must be named] `GatewaySubnet`. :frowning:
+<3> Adjust as per your network requirements, these networks should not overlap and should be https://en.wikipedia.org/wiki/Private_network[private IP addresses].
+<4> Uses `icanhazip.com` to obtain your public address, otherwise supply your public IP address here.
+<5> Uses the `Basic` SKU, it is the most afforable for testing purposes but has limitations and shouldn't be used in production.
+
+NOTE: The provisioning of the Azure Virtual Gateway can take up to 45 minutes to complete, so this a good place to take a break and grab a :coffee:.
+I advise against any :beer: at this point, as things can get tricky to troubleshoot if a simple mistake is made at this point.
+
+[source, bash]
+.link:/assets/azure-site-to-site-vpn/azure-s2s-template/install-libreswan.sh[install-libreswan.sh, window="_blank"]
+----
+include::/src/static/assets/azure-site-to-site-vpn/azure-s2s-template/install-libreswan.sh[]
+----
+
+
+== Firewall and NAT
+
+
+== Useful IPsec commands for troubleshooting
+
+----
+ipsec status
+
+ipsec stop
+ipsec status
+
+
+systemctl status ipsec
+
+ipsec whack --trafficstatus
+----
+
+== Gateway connections
+
+How to route Alice's traffic to vm-echo
+
+
+NOTE: https://{{< ref "2020-08-29-lab-vm.adoc" >}}:[Linux Router]
+
+== Pricing
+
+Basic 	~$26.28/month
+
+https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/
+
+Basic limitations
+
+IPsec policies
+
+your public ip can change
+
+The latest source code can be found on https://github.com/philipf/azure-s2s-template[GitHub]

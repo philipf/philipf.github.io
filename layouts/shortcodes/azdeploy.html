@@ -1,0 +1,14 @@
+{{/*
+    Generate a Deploy to Azure button.
+
+    More information: https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-to-azure-button
+
+    Usage: 
+    
+    {{<azdeploy "link-to-json">}}
+
+*/}}
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/{{htmlEscape (.Get 0) }}" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure button">
+</a>
