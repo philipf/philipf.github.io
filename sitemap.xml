@@ -4,15 +4,78 @@
     
     
     <url>
-        <loc>https://blog.notnot.ninja/about/</loc>
-        <lastmod>2020-08-29T00:00:00+00:00</lastmod>
+        <loc>https://blog.notnot.ninja/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
     </url>
     
     
     
     <url>
-        <loc>https://blog.notnot.ninja/</loc>
-        <lastmod>2020-08-29T11:57:00+12:00</lastmod>
+        <loc>https://blog.notnot.ninja/tags/azure/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/series/azure-site-to-site-vpn-for-devtest/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/tags/ipsec/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/tags/linux/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/tags/networking/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/posts/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/series/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/tags/</loc>
+        <lastmod>2020-09-19T08:42:00+12:00</lastmod>
+    </url>
+    
+    
+    
+    <url>
+        <loc>https://blog.notnot.ninja/about/</loc>
+        <lastmod>2020-08-29T00:00:00+00:00</lastmod>
     </url>
     
     
@@ -32,44 +95,10 @@
     
     
     <url>
-        <loc>https://blog.notnot.ninja/tags/linux/</loc>
-        <lastmod>2020-08-29T11:57:00+12:00</lastmod>
-    </url>
-    
-    
-    
-    <url>
-        <loc>https://blog.notnot.ninja/tags/networking/</loc>
-        <lastmod>2020-08-29T11:57:00+12:00</lastmod>
-    </url>
-    
-    
-    
-    <url>
-        <loc>https://blog.notnot.ninja/posts/</loc>
-        <lastmod>2020-08-29T11:57:00+12:00</lastmod>
-    </url>
-    
-    
-    
-    <url>
-        <loc>https://blog.notnot.ninja/tags/</loc>
-        <lastmod>2020-08-29T11:57:00+12:00</lastmod>
-    </url>
-    
-    
-    
-    <url>
         <loc>https://blog.notnot.ninja/categories/</loc>
     </url>
     
     
-    
-    
-    
-    <url>
-        <loc>https://blog.notnot.ninja/series/</loc>
-    </url>
     
     
 </urlset>

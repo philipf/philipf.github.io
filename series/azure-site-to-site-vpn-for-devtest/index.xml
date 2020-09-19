@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>linux on !!ninja</title>
-        <link>https://blog.notnot.ninja/tags/linux/</link>
-        <description>Recent content in linux on !!ninja</description>
+        <title>Azure Site-to-Site VPN for DevTest on !!ninja</title>
+        <link>https://blog.notnot.ninja/series/azure-site-to-site-vpn-for-devtest/</link>
+        <description>Recent content in Azure Site-to-Site VPN for DevTest on !!ninja</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <managingEditor>philip.fourie@gmail.com (Philip Fourie)</managingEditor>
         <webMaster>philip.fourie@gmail.com (Philip Fourie)</webMaster>
         <lastBuildDate>Sat, 19 Sep 2020 08:42:00 +1200</lastBuildDate>
         
-        <atom:link href="https://blog.notnot.ninja/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="https://blog.notnot.ninja/series/azure-site-to-site-vpn-for-devtest/index.xml" rel="self" type="application/rss+xml" />
         
         
         

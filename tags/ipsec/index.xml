@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>linux on !!ninja</title>
-        <link>https://blog.notnot.ninja/tags/linux/</link>
-        <description>Recent content in linux on !!ninja</description>
+        <title>ipsec on !!ninja</title>
+        <link>https://blog.notnot.ninja/tags/ipsec/</link>
+        <description>Recent content in ipsec on !!ninja</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en</language>
         <managingEditor>philip.fourie@gmail.com (Philip Fourie)</managingEditor>
         <webMaster>philip.fourie@gmail.com (Philip Fourie)</webMaster>
         <lastBuildDate>Sat, 19 Sep 2020 08:42:00 +1200</lastBuildDate>
         
-        <atom:link href="https://blog.notnot.ninja/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="https://blog.notnot.ninja/tags/ipsec/index.xml" rel="self" type="application/rss+xml" />
         
         
         
@@ -22,20 +22,6 @@
             <guid>https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/</guid>
             <description>Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads. Azure&amp;#8217;s site-to-site VPN make it possible to extend your on-premises network to private virtual networks on the cloud.
  Usually, such a setup requires hardware that supports IPsec VPN. Azure site-to-site VPN requires a device that is IPsec IKEv2 compliant.</description>
-        </item>
-        
-        
-        
-        <item>
-            <title>Build an isolated network with Hyper-V for a virtual lab</title>
-            <link>https://blog.notnot.ninja/2020/08/29/lab-vm/</link>
-            <pubDate>Sat, 29 Aug 2020 11:57:00 +1200</pubDate>
-            <author>philip.fourie@gmail.com (Philip Fourie)</author>
-            <guid>https://blog.notnot.ninja/2020/08/29/lab-vm/</guid>
-            <description>Occasionally, I need to spin up a few local virtual machines on my Windows 10 laptop to test a networking concept. Building a practical multi-machine configuration can be challenging. For me, this typically means:
-   The VM host can connect to the guest VMs.
-  The guest VMs can connect to the host.
-  The guest VMs can connect to each other.</description>
         </item>
         
         

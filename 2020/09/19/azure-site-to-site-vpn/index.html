@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    
+
+
+    <head>
+    <link href="https://gmpg.org/xfn/11" rel="profile">
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Cache-Control" content="public" />
+<!-- Enable responsiveness on mobile devices -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="generator" content="Hugo 0.74.3" />
+
+    
+    
+    
+
+<title>Build an Azure site-to-site VPN for DevTest • !!ninja</title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+<meta property="og:locale" content="en">
+<meta property="og:site_name" content="!!ninja">
+<meta property="og:title" content="Build an Azure site-to-site VPN for DevTest">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/" />
+<meta property="og:description" content="Software architecture and design">
+<meta property="og:image" content="https://blog.notnot.ninja/social-sharing.png">
+<meta property="og:image:type" content="image/png">
+    
+    
+    
+<meta property="og:image:width" content="192">
+<meta property="og:image:height" content="192">
+    
+
+<meta property="og:updated_time" content="2020-09-19T08:42:00&#43;1200">
+
+
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@pfourie">
+<meta name="twitter:title" content="Build an Azure site-to-site VPN for DevTest">
+
+<meta name="twitter:image" content="https://blog.notnot.ninja/social-sharing.png">
+
+<meta name="twitter:description" content="Software architecture and design">
+<meta name="twitter:creator" content="@pfourie">
+    
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css" media="(prefers-color-scheme: light)"><link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css" media="(prefers-color-scheme: dark)">
+
+
+
+
+<link rel="stylesheet" href="/scss/hyde-hyde.87df86aa94b6f1df927f1c69ab82169a2089fd16f33411d936ac250baf71d9d8.css" integrity="sha256-h9&#43;GqpS28d&#43;Sfxxpq4IWmiCJ/RbzNBHZNqwlC69x2dg=">
+
+
+<link rel="stylesheet" href="/scss/hyde-hyde-dark.2eddfb769610f72f40f6bc949e62a3acf298eb8504c073739085a417978b18cd.css" integrity="sha256-Lt37dpYQ9y9A9ryUnmKjrPKY64UEwHNzkIWkF5eLGM0=" media="(prefers-color-scheme: dark)">
+
+
+<link rel="stylesheet" href="/scss/print.2744dcbf8a0b2e74f8a50e4b34e5f441be7cf93cc7de27029121c6a09f9e77bc.css" integrity="sha256-J0Tcv4oLLnT4pQ5LNOX0Qb58&#43;TzH3icCkSHGoJ&#43;ed7w=" media="print">
+
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Handlee">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- Icons -->
+    
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+    
+    <link rel="shortcut icon" sizes="192x192" href="/android-192-favicon.png">
+
+    
+    <link rel="shortcut icon" href="/android-192-favicon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/v4-shims.min.css" integrity="sha256-wN7QJaqAwQ03kgUhyN4EU2phRdDkLrQYbFe0EvpQ60U=" crossorigin="anonymous" />
+
+    
+    
+
+
+    
+</head>
+
+
+    <body class="">
+    
+<div class="sidebar">
+  <div class="container ">
+    <div class="sidebar-about">
+      <span class="site__title">
+        <a href="https://blog.notnot.ninja">!!ninja</a>
+      </span>
+      
+      
+        <div class="author-image">
+          <img src="https://www.gravatar.com/avatar/e11f2f98e3cd6d9b0d10c53633708f90?s=240&d=mp" class="img--circle img--headshot element--center" alt="gravatar">
+        </div>
+      
+      <p class="site__description">
+         My tech notes 
+      </p>
+    </div>
+    <div class="collapsible-menu">
+      <input type="checkbox" id="menuToggle">
+      <label for="menuToggle">!!ninja</label>
+      <div class="menu-content">
+        <div>
+	<ul class="sidebar-nav">
+		 
+		 
+			 
+				<li>
+					<a href="/"><span class='fa-icon'><i class='fas fa-home'></i></span>Home
+						<span></span>
+					</a>
+				</li>
+			 
+		 
+			 
+				<li>
+					<a href="/posts/"><span class='fa-icon'><i class='fas fa-stream'></i></span>Posts
+						<span></span>
+					</a>
+				</li>
+			 
+		 
+			 
+				<li>
+					<a href="/tags/"><span class='fa-icon'><i class='fas fa-tags'></i></span>Tags
+						<span></span>
+					</a>
+				</li>
+			 
+		 
+			 
+				<li>
+					<a href="/about/"><span class='fa-icon'><i class='fas fa-id-card'></i></span>About
+						<span></span>
+					</a>
+				</li>
+			 
+		
+	</ul>
+</div>
+
+        <section class="social">
+	
+	<a href="https://twitter.com/pfourie" rel="me"><i class="fa-w-16" aria-hidden="true"><svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="bird" class="svg-inline--fa fa-bird fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg></i></a>
+	
+	
+	
+	<a href="https://github.com/philipf" rel="me"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	
+	
+	
+	<a href="https://linkedin.com/in/philipf" rel="me"><i class="fa-w-16" aria-hidden="true"><svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="pro-network" class="svg-inline--fa fa-pro-network fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path></svg></i></a>
+	
+	
+	<a href="https://stackoverflow.com/users/11123/philip-fourie" rel="me"><i class="fab fa-stack-overflow fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	
+	
+	
+</section>
+
+      </div>
+    </div>
+
+  </div>
+  <div class="container fixed-container">
+    
+<div class="copyright">
+  &copy; 2020 Philip Fourie
+  
+    <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>
+  
+</div>
+
+
+
+  </div>
+</div>
+
+        <div class="content container">
+            
+    
+
+<article>
+  <header>
+    <h1>Build an Azure site-to-site VPN for DevTest</h1>
+    
+    
+<div class="post__meta">
+    
+    
+      <i class="fas fa-calendar-alt"></i> 2020-09-19
+    
+    
+    
+    
+    
+      
+      
+          <br/>
+           <i class="fas fa-tags"></i>
+          
+          <a class="badge badge-tag" href="/tags/azure">azure</a>
+           
+      
+          <a class="badge badge-tag" href="/tags/linux">linux</a>
+           
+      
+          <a class="badge badge-tag" href="/tags/networking">networking</a>
+           
+      
+          <a class="badge badge-tag" href="/tags/ipsec">ipsec</a>
+          
+      
+    
+    
+    <br/>
+    <i class="fas fa-clock"></i> 35 min read
+
+    
+    
+    
+        <div class="page-series">
+            <div class="title">In the same series :</div>
+            <ul>
+                
+                    
+                    <li hugo-nav="/2020/09/19/azure-site-to-site-vpn/"><a href="https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/"> Build an Azure site-to-site VPN for DevTest </a> </li>
+                    
+                    <li hugo-nav="/2020/08/29/lab-vm/"><a href="https://blog.notnot.ninja/2020/08/29/lab-vm/"> Build an isolated network with Hyper-V for a virtual lab </a> </li>
+                    
+                
+            </ul>
+        </div>
+    
+
+</div>
+
+
+  </header>
+  
+  
+  
+  <div class="post adoc">
+    <div class="paragraph">
+<p>Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads.
+<a href="https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal">Azure&#8217;s site-to-site VPN</a> make it possible to extend your on-premises network to private virtual networks on the cloud.</p>
+</div>
+<div class="paragraph">
+<p>Usually, such a setup requires hardware that supports <a href="https://en.wikipedia.org/wiki/IPsec">IPsec</a> VPN.
+Azure site-to-site VPN requires a device that is IPsec IKEv2 compliant.
+Obviously, if you don&#8217;t have a compatible VPN appliance, you are stuck, or if you have such an appliance but don&#8217;t want to affect the rest of the network, you may need to consider a software-based IPsec VPN alternative.</p>
+</div>
+<div class="paragraph">
+<p>This post describes how to use Libreswan as a software-based IPSec VPN solution to connect to an Azure virtual gateway.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Although this configuration works well for DevTest purposes, it not recommended for production scenarios.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The source code accompanying this article is available on <a href="https://github.com/philipf/azure-s2s-template">GitHub</a>.</p>
+</div>
+<div class="sect1">
+<h2 id="_the_solution_design"><a class="anchor" href="#_the_solution_design"></a><a class="link" href="#_the_solution_design">The Solution Design</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The design below shows a configuration that connects an Azure Virtual Network (VNet) with an on-premises network. This base configuration can be adjusted for your own specific needs.</p>
+</div>
+<div class="paragraph">
+<p>In this configuration <code>foxtrot</code> can route traffic between <code>192.168.1.0/24</code> and <code>192.168.3.32/24</code>, thereby connecting resources such as <code>Alice</code> and <code>vm-echo</code> with each other.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/assets/azure-site-to-site-vpn/Azure-S2S-network.svg" alt="Solution Design">
+</div>
+</div>
+<div class="paragraph">
+<p>The <em>Left</em> side of network use standard Azure site-to-site components while the <em>Right</em> side of the network uses <a href="https://libreswan.org/">Libreswan</a>, a free, open-source implementation of IPsec VPN.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pre_requisites"><a class="anchor" href="#_pre_requisites"></a><a class="link" href="#_pre_requisites">Pre-requisites</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To build this configuration, you&#8217;ll need the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure subscription.</p>
+</li>
+<li>
+<p>Local network</p>
+</li>
+<li>
+<p>A Linux instance to run the <a href="https://libreswan.org/:">Libreswan VPN software</a>, preferably a dedicated VM. The Libreswan installation script in this article was tested against both Debian 10.05 and Ubuntu 20.04 (Unfortunately compilation of Libreswan failed on Ubuntu 18.04).</p>
+</li>
+<li>
+<p>A modem/router to configure Firewall/NAT rules</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quick_start"><a class="anchor" href="#_quick_start"></a><a class="link" href="#_quick_start">Quick Start</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For the impatient, get going quickly by running the following steps, otherwise, skip to <a href="#_provision_azure_resources">Provision Azure Resources</a>:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Click the <strong>Deploy to Azure</strong> button to deploy the Azure S2S resources to your Azure subscription.
+The content of this ARM template can be <a href="https://github.com/philipf/azure-s2s-template/blob/master/template.json">viewed here</a>.</p>
+<div class="paragraph">
+
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fraw.githubusercontent.com%2fphilipf%2fazure-s2s-template%2fmaster%2ftemplate.json" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure button">
+</a>
+</div>
+</li>
+<li>
+<p>Wait about <strong>45 minutes</strong> for the Azure Virtual Gateway to be provisioned. You&#8217;ll need the pre-shared key (PSK) and the Virtual Gateway public IP (VGW VIP) from the previous step.</p>
+</li>
+<li>
+<p><strong>Install Libreswan</strong> on <code>Ubuntu 20.04</code> or <code>Debian 10.05</code>, by running:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">sudo sh -c "$(wget -qO- https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install-libreswan.sh)"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Port forward <strong>UDP 4500</strong> and <strong>UDP 500</strong> from the VGW VIP to <code>Foxtrot</code> on your modem/router.</p>
+</li>
+<li>
+<p><strong>Test connectivity</strong> by pinging <code>vm-echo</code> from <code>Foxtrot</code> and visa versa</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>At this point, you should have a connected site-to-site VPN.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_provision_azure_resources"><a class="anchor" href="#_provision_azure_resources"></a><a class="link" href="#_provision_azure_resources">Provision Azure Resources</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Start with the following if you haven&#8217;t performed the steps in the <a href="#_quick_start">Quick Start</a> section.</p>
+</div>
+<div class="paragraph">
+<p>Provision the Azure resources by:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Deploying the ARM template, the easier option.</p>
+</li>
+<li>
+<p>Or by running the PowerShell script, the more programmable option.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_using_the_arm_template"><a class="anchor" href="#_using_the_arm_template"></a><a class="link" href="#_using_the_arm_template">Using the ARM template</a></h3>
+<div class="paragraph">
+<p>By far, the easiest way to deploy the <a href="https://github.com/philipf/azure-s2s-template/blob/master/template.json">ARM template</a> is by clicking:</p>
+</div>
+<div class="paragraph">
+
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fraw.githubusercontent.com%2fphilipf%2fazure-s2s-template%2fmaster%2ftemplate.json" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure button">
+</a>
+</div>
+<div class="paragraph">
+<p>or deploy it with the <a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-portal#deploy-resources-from-custom-template">Azure Portal</a>,
+<a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-cli#deploy-local-template">Azure CLI</a>
+or <a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-powershell#deploy-local-template">Azure PowerShell</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_powershell"><a class="anchor" href="#_using_powershell"></a><a class="link" href="#_using_powershell">Using PowerShell</a></h3>
+<div class="paragraph">
+<p><strong>Update the configuration variables</strong> in the PowerShell script below and then run it to provision the Azure site-to-site resources.
+The script can be run from either the <a href="https://docs.microsoft.com/en-us/azure/cloud-shell/overview">Azure Cloud Shell</a> or locally with <a href="https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-4.6.1">Azure PowerShell</a></p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="/assets/azure-site-to-site-vpn/azure-s2s-template/deploy-azure.ps1" target="_blank" rel="noopener">deploy-azure.ps1</a></div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">## Set configuration variables
+$SharedKey ='YourSecureSharedKey9' <i class="conum" data-value="1"></i><b>(1)</b>
+
+# Azure (Left-side)
+$ResourceGroup='rg-virtualgateway'
+$Location='australiaeast'
+$VNetName='vnet-extended-home'
+$SubnetMyVmsName='snet-myvms'
+$SubnetGatewayName='GatewaySubnet' <i class="conum" data-value="2"></i><b>(2)</b>
+$VgwName='vgw-devtest'
+$VgwPublicIpName='pip-vgw-devtest'
+$VgwConnectionName='s2s-devtest-home'
+$LgwName='lgw-home'
+$NsgName='nsg-myvms'
+$VNetCidr='192.168.3.0/24' <i class="conum" data-value="3"></i><b>(3)</b>
+$SubnetMyVmsCidr='192.168.3.32/27' <i class="conum" data-value="3"></i><b>(3)</b>
+$SubnetGatewayCidr='192.168.3.0/28'
+
+# Local network (Right-side)
+$SubnetLocalGateway='192.168.1.0/24' <i class="conum" data-value="3"></i><b>(3)</b>
+$MyPublicIp = (Invoke-WebRequest -Uri icanhazip.com).Content.Trim()  <i class="conum" data-value="4"></i><b>(4)</b>
+
+# Create a new resource group to deploy all the S2S resources to.
+# Deleting this resource group removes all the S2S resource with it.
+New-AzResourceGroup -Name $ResourceGroup -Location $Location
+
+# Create a firewall rule to allow ping traffic.
+# This is not required but help for connectivity testing and can be removed later
+$icmpRule = New-AzNetworkSecurityRuleConfig `
+  -Name 'ICMP' `
+  -Description 'Allow ICMP for ping commands' `
+  -Access Allow `
+  -Protocol ICMP `
+  -Direction Inbound `
+  -Priority 100 `
+  -SourceAddressPrefix Internet `
+  -SourcePortRange * `
+  -DestinationAddressPrefix VirtualNetwork `
+  -DestinationPortRange *
+
+$NetworkSecurityGroup = New-AzNetworkSecurityGroup `
+  -ResourceGroupName $ResourceGroup `
+  -Location $Location `
+  -Name $NsgName `
+  -SecurityRules $icmpRule
+
+# Hides annoying deprecated warnings, unfortunately no replacements commands existed yet :(
+Set-Item Env:\SuppressAzurePowerShellBreakingChangeWarnings 'true'
+
+$SubNetMyVms = New-AzVirtualNetworkSubnetConfig -Name $SubnetMyVmsName `
+  -AddressPrefix $SubnetMyVmsCidr `
+  -NetworkSecurityGroup $networkSecurityGroup
+
+$SubNetGateway = New-AzVirtualNetworkSubnetConfig -Name $SubnetGatewayName `
+  -AddressPrefix $SubnetGatewayCidr
+
+  Set-Item Env:\SuppressAzurePowerShellBreakingChangeWarnings 'false'
+
+$Vnet = New-AzVirtualNetwork -Location $Location `
+  -Name $VNetName `
+  -ResourceGroupName $ResourceGroup `
+  -AddressPrefix $VNetCidr `
+  -Subnet $SubNetMyVms, $SubNetGateway
+
+$VgwPip = New-AzPublicIpAddress `
+  -AllocationMethod Dynamic `
+  -IpaddressVersion IPv4 `
+  -Location $Location `
+  -Name $VgwPublicIpName `
+  -ResourceGroupName $ResourceGroup
+
+$SubnetGateway = Get-AzVirtualNetworkSubnetConfig -Name $SubNetGatewayName -VirtualNetwork $Vnet
+
+$GwIpConfig = New-AzVirtualNetworkGatewayIpConfig `
+  -Name 'GwIpConfig' `
+  -Subnet $SubnetGateway `
+  -PublicIpAddress $VgwPip
+
+$Lgw = New-AzLocalNetworkGateway `
+  -Name $LgwName `
+  -Location $Location `
+  -ResourceGroupName $ResourceGroup `
+  -AddressPrefix $SubnetLocalGateway `
+  -GatewayIpAddress $MyPublicIp
+
+# Create the VGW, this step takes about 45 minutes
+$Vgw = New-AzVirtualNetworkGateway `
+  -Name $VgwName `
+  -ResourceGroupName $ResourceGroup `
+  -Location $Location `
+  -IpConfigurations $GwIpConfig `
+  -GatewayType Vpn `
+  -VpnType RouteBased `
+  -GatewaySku Basic <i class="conum" data-value="5"></i><b>(5)</b>
+
+$Vgw = Get-AzVirtualNetworkGateway -Name $VgwName -ResourceGroupName $ResourceGroup
+$Lgw = Get-AzLocalNetworkGateway -Name $LgwName -ResourceGroupName $ResourceGroup
+
+# Create the S2S IPsec tunnel
+New-AzVirtualNetworkGatewayConnection `
+  -Name $VgwConnectionName `
+  -ResourceGroupName $ResourceGroup `
+  -VirtualNetworkGateway1 $Vgw `
+  -LocalNetworkGateway2 $Lgw `
+  -Location $Location `
+  -ConnectionType IPsec `
+  -SharedKey $SharedKey</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Supply your own significantly complex PSK, this key is used on both sides of the IPsec tunnel, and you&#8217;ll will need it again as part of the Libreswan configuration.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>By convention this <a href="https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-vpn-faq#do-i-need-a-gatewaysubnet">must be named</a> <code>GatewaySubnet</code>. 😦</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Adjust it to your network requirements, keep in mind that these networks should not overlap and should be <a href="https://en.wikipedia.org/wiki/Private_network">private IP addresses</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Use <code>icanhazip.com</code> to obtain your public address, otherwise, supply your public IP address here.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Configured to use the <code>Basic</code> SKU, as it is the most affordable, it has limitations and is not meant for production use.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The provisioning of the Azure Virtual Gateway can take up to 45 minutes to complete, so this is a great place to take a break and grab a ☕.
+I advise against any 🍺 at this point, as things can get tricky to troubleshoot if a simple mistake is made at this point. 😉
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_post_deployment"><a class="anchor" href="#_post_deployment"></a><a class="link" href="#_post_deployment">Post-deployment</a></h3>
+<div class="paragraph">
+<p>A successful deployment should result in the following resources being deployed:</p>
+</div>
+<div class="imageblock text-left">
+<div class="content">
+<img src="/assets/azure-site-to-site-vpn/AzureResources.png" alt="Azure Resources">
+</div>
+</div>
+<div class="paragraph">
+<p>Obtain the Virtual network gateway&#8217;s public IP (VIP) by using one of the following methods:</p>
+</div>
+<div class="listingblock">
+<div class="title">Azure Powershell</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">(Get-AzPublicIpAddress -Name 'pip-vgw-devtest' -ResourceGroupName 'rg-virtual-gateway').IpAddress</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Azure CLI</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">az network public-ip show --name 'pip-vgw-devtest' -g 'rg-virtual-gateway' --query 'ipAddress' -o tsv</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or look it up in the Azure Portal</p>
+</div>
+<div class="imageblock text-left">
+<div class="content">
+<img src="/assets/azure-site-to-site-vpn/AzurePortalVgwVip.png" alt="VGW VIP">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_firewall_and_nat_rules"><a class="anchor" href="#_firewall_and_nat_rules"></a><a class="link" href="#_firewall_and_nat_rules">Firewall and NAT rules</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Libreswan requires standard IPsecv2 ports to be open on your firewall. These ports are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>UDP port 500 and</p>
+</li>
+<li>
+<p>UDP port 4500</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This traffic has to be forwarded to the machine that runs Libreswan (<code>Foxtrot 192.168.1.2</code>)
+On my Asus wireless router I configure my WAN port forwarding as follows:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/azure-site-to-site-vpn/NAT.png" alt="Router NAT rules">
+</div>
+</div>
+<div class="paragraph">
+<p>It is not required, but as an additional security measure, I have also locked down the source IP address to that of the VGW VIP.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_and_configure_libreswan"><a class="anchor" href="#_install_and_configure_libreswan"></a><a class="link" href="#_install_and_configure_libreswan">Install and configure Libreswan</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once the Azure Virtual Gateway deployment is complete, continue to install Libreswan on a Linux machine, preferably a clean and dedicated virtual machine.</p>
+</div>
+<div class="paragraph">
+<p>The installation script (<code>install-libreswan.sh</code>) downloads the source code, compiles, installs and configures version 3.32 of Libreswan.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>For security reasons, support for DH2/modp1024 is removed at compile time from Libreswan <a href="https://download.libreswan.org/CHANGES">since v3.30</a> (February 13, 2020).</p>
+</div>
+<div class="paragraph">
+<p>At the time of writing Azure S2S VPN connections are created by default with an IPsec/IKE policy that uses DH2.  😟
+<a href="https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-ipsecikepolicy-rm-powershell">Additional steps</a> can and should be taken to select a better IKE policy for production use.
+Unfortunately, the <strong>Basic</strong> SKU for VGWs does not support custom IPsec/IKE policies and leaves us with the only option to use a VPN solution that still supports DH2, which in my case is acceptable for DevTest.</p>
+</div>
+<div class="paragraph">
+<p>This script compiles the code with the <code>USE_DH2=true</code> flag to enable DH2/modp1024 that is required for Azure&#8217;s default IPsec policy.
+Alternatively, one can upgrade to the next SKU (<strong>VpnGw1</strong>) that supports custom IPsec/IKE policies but it is <a href="https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/">more expensive</a>.
+I want to keep the instructions as simple as possible, with the idea that once a successful S2S connection is created, it can be modified accordingly.</p>
+</div>
+</div>
+</div>
+<div class="listingblock">
+<div class="title"><a href="/assets/azure-site-to-site-vpn/azure-s2s-template/install-libreswan.sh" target="_blank" rel="noopener">install-libreswan.sh</a></div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">#!/bin/sh
+#
+# Installs and configures Libreswan to connect an Azure VPN Gateway.
+# See: https://blog.notnot.ninja/2020/09/12/azure-site-to-site-vpn/
+#
+# This script should be run via curl:
+#   sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install-libreswan.sh)"
+# or via wget:
+#   sudo sh -c "$(wget -qO- https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install-libreswan.sh)"
+# or via fetch:
+#   sudo sh -c "$(fetch -o - https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install-libreswan.sh)"
+#
+# As an alternative, you can first download the install script and run it afterwards:
+#   wget https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install.sh
+#   sudo sh install.sh
+#
+
+set -e
+
+main() {
+    echo 'Install Libreswan for an Azure site-to-site VPN'
+    echo 'For more details: https://blog.notnot.ninja/2020/09/12/azure-site-to-site-vpn/'
+
+    read -p 'Virtual Gateway IP (VIP): ' vgw_vip
+    read -p 'Azure VNet [192.168.3.0/24]: ' left_subnet
+    left_subnet=${left_subnet:-192.168.3.0/24}
+
+    read -p 'Local network [192.168.1.0/24]: ' right_subnet
+    right_subnet=${right_subnet:-192.168.1.0/24}
+
+    read -p 'Pre-shared key: ' psk <i class="conum" data-value="1"></i><b>(1)</b>
+
+    apt update
+
+    # Install the build dependencies for Libreswan
+    apt install -y \
+        libnss3-dev \
+        libnspr4-dev \
+        pkg-config \
+        libpam-dev \
+        libcap-ng-dev \
+        libcap-ng-utils \
+        libselinux-dev \
+        libcurl3-nss-dev \
+        flex \
+        bison \
+        gcc \
+        make \
+        libldns-dev \
+        libunbound-dev \
+        libnss3-tools \
+        libevent-dev \
+        xmlto \
+        libsystemd-dev \
+        gawk
+
+    # Install wget to download Libreswan source
+    apt install -y wget
+
+    wget https://github.com/libreswan/libreswan/archive/v3.32.tar.gz
+
+    tar -xzvf v3.32.tar.gz
+    cd libreswan-3.32/
+
+    # Include the deprecated Diffie-Hellman group 2 (modp1024) as required by Azure's Basic SKU
+    export USE_DH2=true <i class="conum" data-value="2"></i><b>(2)</b>
+    export USE_FIPSCHECK=false <i class="conum" data-value="3"></i><b>(3)</b>
+    export USE_DNSSEC=false <i class="conum" data-value="3"></i><b>(3)</b>
+
+    make clean
+    make base
+    make install-base
+
+# Create the connection definition to Azure
+cat &lt;&lt;END &gt; /etc/ipsec.d/azure.conf
+conn azureTunnel
+    authby=secret
+    auto=start
+    dpdaction=restart
+    dpddelay=30
+    dpdtimeout=120
+    ike=aes256-sha1;modp1024
+    ikelifetime=3600s
+    ikev2=yes
+    keyingtries=3
+    pfs=yes
+    phase2alg=aes128-sha1
+    left=$vgw_vip
+    leftsubnets=$left_subnet
+    right=%defaultroute
+    rightsubnets=$right_subnet
+    salifetime=3600s
+    type=tunnel
+END
+
+# Create secrets file with a pre-shared key
+cat &lt;&lt;END &gt; /etc/ipsec.d/azure.secrets
+%any %any : PSK "$psk"
+END
+
+    # Enable and start the IPsec service
+    systemctl enable ipsec.service
+    systemctl start ipsec.service
+    systemctl status ipsec.service
+
+    printf "Completed successfully\n"
+}
+
+main</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This is the pre-shared key that was supplied when the Azure Virtual Gateway was created.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Includes DH2 support at compile time.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>For Debian/Ubuntu there is no <code>fipscheck</code> library, and <code>unbound</code> is build without <code>event api</code>.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Libreswan uses the concept of 'left' and 'right' in its configuration files to distinguish between the two sides of the network; it doesn&#8217;t matter which side is left or right.</p>
+</div>
+<div class="paragraph">
+<p>At this point, it should be possible to connect to resources located in the VNet, for example, ping <code>vm-echo</code> from <code>Foxtrot</code>:</p>
+</div>
+<div class="listingblock">
+<div class="title">Ping vm-echo</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">philipf@foxtrot:~$ ping 192.168.3.36
+PING 192.168.3.36 (192.168.3.36) 56(84) bytes of data.
+64 bytes from 192.168.3.36: icmp_seq=1 ttl=64 time=35.7 ms
+64 bytes from 192.168.3.36: icmp_seq=2 ttl=64 time=35.7 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and also after connecting with SSH to <code>vm-echo</code> it is possible to ping <code>Foxtrot</code>:</p>
+</div>
+<div class="listingblock">
+<div class="title">Ping Foxtrot</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">azureuser@vm-echo-dev:~$ ping 192.168.1.2
+PING 192.168.1.2 (192.168.1.2) 56(84) bytes of data.
+64 bytes from 192.168.1.2: icmp_seq=1 ttl=64 time=34.9 ms
+64 bytes from 192.168.1.2: icmp_seq=2 ttl=64 time=36.0 ms</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ipsec_troubleshooting"><a class="anchor" href="#_ipsec_troubleshooting"></a><a class="link" href="#_ipsec_troubleshooting">IPsec troubleshooting</a></h3>
+<div class="paragraph">
+<p>Hopefully, you don&#8217;t need to read this section 😉, but if you are experiencing problems, I found the following commands and configuration files useful to debug problems with the IPsec service.</p>
+</div>
+<div class="listingblock">
+<div class="title">View ipsec configuration files</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs"># View the left/right and encryption settings:
+cat /etc/ipsec.d/azure.conf
+
+# View the PSK
+cat /etc/ipsec.d/azure.secrets</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Useful ipsec commands</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs"># View the current ipsec status
+sudo ipsec status
+
+# Confirm that the ipsec connection is loaded and active
+sudo ipsec status | grep "Total IPsec"
+# It should return:
+# 000 Total IPsec connections: loaded 1, active 1
+
+# Control the ipsec service
+sudo ipsec stop
+sudo ipsec start
+sudo ipsec status
+
+# View the active tunnels (if any)
+sudo ipsec whack --trafficstatus
+# It should return:
+# 006 #7: "azureTunnel/1x1", type=ESP, add_time=1600483905, inBytes=3824, outBytes=2224, id='104.210.91.188'</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_routing"><a class="anchor" href="#_routing"></a><a class="link" href="#_routing">Routing</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Additional routing is required to enable communication between VNet resources and other local devices. For example <code>Foxtrot</code> connecting to <code>Alice</code> and vice versa.</p>
+</div>
+<div class="sect2">
+<h3 id="_configure_foxtrot_for_routing"><a class="anchor" href="#_configure_foxtrot_for_routing"></a><a class="link" href="#_configure_foxtrot_for_routing">Configure Foxtrot for routing</a></h3>
+<div class="paragraph">
+<p><code>Foxtrot</code> has access to both the <code>192.168.1.0/24</code> and <code>192.168.3.0/24</code> networks and therefore can be configured to route traffic between them.
+Update the <code>/etc/sysctl.conf</code> file with the setting below to enable IP forwarding and also to persist the setting when the VM restarts.</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/sysctl.conf</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">net.ipv4.ip_forward=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Apply the change by running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">sudo sysctl -p /etc/sysctl.conf</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also, update <code>iptables</code> with the required masquerading rules.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">sudo modprobe iptable_nat
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo apt install iptables-persistent</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At this point, it should be possible to connect <strong>from</strong> <code>192.168.3.0/24</code> to other devices on the <code>192.168.1.0/24</code> network in addition to <code>192.168.1.2</code>.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="bash" class="language-bash hljs">azureuser@vm-echo-dev:~$ ping 192.168.1.1
+PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
+64 bytes from 192.168.1.1: icmp_seq=1 ttl=63 time=35.5 ms
+64 bytes from 192.168.1.1: icmp_seq=2 ttl=63 time=43.8 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It still not possible to route traffic <strong>from</strong> <code>Alice</code> and other <code>192.168.1.0/24</code> devices to the <code>192.168.3.0/24</code> network, but we will fix that next.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configure_alice_or_the_router_for_routing"><a class="anchor" href="#_configure_alice_or_the_router_for_routing"></a><a class="link" href="#_configure_alice_or_the_router_for_routing">Configure Alice (or the Router) for routing</a></h3>
+<div class="paragraph">
+<p>For this to work, a routing rule is required. To achieve this, we need to update the routing table that <code>Alice</code> is using. A networking rule can be configured on either the default gateway&#8217;s routing table that <code>Alice</code> is using or directly on Alice&#8217;s local routing table.
+To keep it simple, we will update the local routing table on Alice.</p>
+</div>
+<div class="paragraph">
+<p>Run these commands in PowerShell with <strong>elevated privileges (Admin)</strong>.</p>
+</div>
+<div class="paragraph">
+<p>First, get the network interface index <code>InterfaceIndex</code> for the network adapter that is connecting <code>Alice</code> to the <code>192.168.1.0/24</code> network.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">Get-NetRoute -DestinationPrefix 192.168.1.0/24 | Select-Object InterfaceIndex, InterfaceAlias
+
+InterfaceIndex InterfaceAlias
+-------------- --------------
+            14 vEthernet (External (LAN)) <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>My <code>InterfaceIndex</code> is 14 and yours will most likely differ</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Next, create a new routing rule by using the <code>InterfaceIndex</code> from the previous step.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">New-NetRoute `
+  -DestinationPrefix 192.168.3.0/24 `
+  -InterfaceIndex 14 `
+  -NextHop 192.168.1.2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To confirm that the route has been added, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">Get-NetRoute -DestinationPrefix 192.168.3.0/24
+
+ifIndex DestinationPrefix NextHop     RouteMetric ifMetric PolicyStore
+------- ----------------- -------     ----------- -------- -----------
+14      192.168.3.0/24    192.168.1.2         256 25       ActiveStore</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then we should be set and ready to do a connectivity test by pinging <code>vm-echo</code> <strong>from</strong> <code>Alice</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">PS C:\Users\philipf&gt; ping 192.168.3.36
+
+Pinging 192.168.3.36 with 32 bytes of data:
+Reply from 192.168.3.36: bytes=32 time=37ms TTL=63
+Reply from 192.168.3.36: bytes=32 time=37ms TTL=63</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>No further configuration is needed, and hopefully, you reached this point with a working site-to-site connection.  🍾</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>After you completed your testing, you may want to clean up the custom routing rules from <code>Alice</code> by running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">Remove-NetRoute -DestinationPrefix 192.168.3.0/24</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_final_thoughts"><a class="anchor" href="#_final_thoughts"></a><a class="link" href="#_final_thoughts">Final thoughts</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_alternative_network_topologies"><a class="anchor" href="#_alternative_network_topologies"></a><a class="link" href="#_alternative_network_topologies">Alternative network topologies</a></h3>
+<div class="paragraph">
+<p>To keep things relatively simple, the instructions in this guide deploys the VPN host (Foxtrot) to the <code>192.168.1.0/24</code> network; I prefer to isolate my personal Lab network and have it on <code>192.168.2.0/24</code>. Running it on an isolated network gives me more versatility when moving between different physical networks (e.g. home and office networks).
+If you prefer such a setup, please refer to <a href="https://https://blog.notnot.ninja/2020/08/29/lab-vm/">Build an isolated network with Hyper-V for a virtual lab</a>.
+Which means that <code>foxtrot</code> will have an IP address in the <code>192.168.2.0/24</code> network such as <code>192.168.2.2</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_basic_sku"><a class="anchor" href="#_basic_sku"></a><a class="link" href="#_basic_sku">Basic SKU</a></h3>
+<div class="paragraph">
+<p>The Basic SKU is <a href="https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/">relatively affordable</a> at ~$26.28 US/month, but it has a couple of limitations to be aware of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Bandwidth is limited at 100 Mbps</p>
+</li>
+<li>
+<p>Custom IPsec policies are not supported, as mentioned in this article.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Still, it useful for DevTest at this price range, as the next SKU is about five times the price at ~$138.70 US/month.
+Also, keep in mind that you will be charged for the duration that the Virtual Network Gateway is provisioned even if you don&#8217;t have any active connections.
+<a href="https://azure.microsoft.com/en-us/pricing/details/bandwidth/">Outbound data</a> charges apply after 5GB /month.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_security"><a class="anchor" href="#_security"></a><a class="link" href="#_security">Security</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Misconfiguration of your network can leave you open for attack, especially on the home network-side where many manual steps are required.</p>
+</li>
+<li>
+<p>Make sure to select a strong PSK (at least 20 characters strong).</p>
+</li>
+<li>
+<p>I also suggest the following when you are not actively using the S2S connection:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Shutdown your home VPN server</p>
+</li>
+<li>
+<p>Remove your NAT rules</p>
+</li>
+<li>
+<p>Switch off the Azure S2S connection</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If you have a dynamic public IP address at home, keep in mind that it may change and will break the IPsec tunnel.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_appendix_ipsec_policies"><a class="anchor" href="#_appendix_ipsec_policies"></a><a class="link" href="#_appendix_ipsec_policies">Appendix: IPsec policies</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In case you prefer to upgrade from the Basic SKU, to rather use custom IPsec policies, I provided the following scripts and configuration snippets than can be applied over the existing deployments.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">$Vgw = New-AzVirtualNetworkGateway `
+  -Name $VgwName `
+  -ResourceGroupName $ResourceGroup `
+  -Location $Location `
+  -IpConfigurations $GwIpConfig `
+  -GatewayType Vpn `
+  -VpnType RouteBased `
+  -GatewaySku VpnGw1 <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Swap Basic out for <strong>VpnGw1</strong></td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="powershell" class="language-powershell hljs">$ipsecPolicy = New-AzIpsecPolicy `
+-IkeEncryption AES256 `
+-IkeIntegrity SHA256 `
+-DhGroup DHGroup14 `
+-IpsecEncryption GCMAES256 `
+-IpsecIntegrity GCMAES256 `
+-PfsGroup None `
+-SALifeTimeSeconds 3600
+
+New-AzVirtualNetworkGatewayConnection `
+  -Name $VgwConnectionName `
+  -ResourceGroupName $ResourceGroup `
+  -VirtualNetworkGateway1 $Vgw `
+  -LocalNetworkGateway2 $Lgw `
+  -Location $Location `
+  -ConnectionType IPsec `
+  -IpsecPolicies $ipsecPolicy ` <i class="conum" data-value="1"></i><b>(1)</b>
+  -SharedKey $SharedKey</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Supply a custom IPsec policy</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Update /etc/ipsec.d/azure.conf</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">conn azureTunnel
+    authby=secret
+    auto=start
+    dpdaction=restart
+    dpddelay=30
+    dpdtimeout=120
+    ike=aes256-sha256;modp2048 <i class="conum" data-value="1"></i><b>(1)</b>
+    ikelifetime=3600s
+    ikev2=yes
+    keyingtries=3
+    pfs=yes
+    phase2alg=aes_gcm <i class="conum" data-value="2"></i><b>(2)</b>
+    left=$vgw_vip
+    leftsubnets=$left_subnet
+    right=%defaultroute
+    rightsubnets=$right_subnet
+    salifetime=3600s
+    type=tunnel</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Update the IKE encryption and integrity to match with <code>AES256</code> and <code>SHA256</code> specified in the <code>New-AzVirtualNetworkGatewayConnection</code> command</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Update the IPsec ecryption and integrity to match with <code>GCMAES256</code> specified in the <code>New-AzVirtualNetworkGatewayConnection</code> command</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+
+  </div>
+  
+
+<div class="navigation navigation-single">
+    
+    <a href="/2020/08/29/lab-vm/" class="navigation-prev">
+      <i aria-hidden="true" class="fa fa-chevron-left"></i>
+      <span class="navigation-tittle">Build an isolated network with Hyper-V for a virtual lab</span>
+    </a>
+    
+    
+</div>
+
+
+  
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+        
+        
+        
+        this.page.identifier = 'https://philipf.github.io/2020/09/19/azure-site-to-site-vpn/';
+        this.page.title = 'Build an Azure site-to-site VPN for DevTest';
+        this.page.url = 'https://philipf.github.io/2020/09/19/azure-site-to-site-vpn/';
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "notnotninja" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+</article>
+
+
+        </div>
+        
+    
+
+  
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-175533459-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/basic.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/c#.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/console.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/cmd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/Bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/powershell.min.js"></script>
+        
+    
+    <script type="text/javascript">
+        
+        hljs.configure({languages: ["basic, c#, console, cmd, Bash, powershell"]});
+        
+        hljs.initHighlightingOnLoad();
+    </script>
+    
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js" integrity="sha256-vrn14y7WH7zgEElyQqm2uCGSQrX/xjYDjniRUQx3NyU=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+	$('.primary').each(function() {
+		primary = $(this);
+		createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+		primary.children('.title').remove();
+	});
+	$('.secondary').each(function(idx, node) {
+		secondary = $(node);
+		primary = findPrimary(secondary);
+		switchItem = createSwitchItem(secondary, primary.children('.switch'));
+		switchItem.content.addClass('hidden');
+		findPrimary(secondary).append(switchItem.content);
+		secondary.remove();
+	});
+}
+
+function createBlockSwitch(primary) {
+	blockSwitch = $('<div class="switch"></div>');
+	primary.prepend(blockSwitch);
+	return blockSwitch;
+}
+
+function findPrimary(secondary) {
+	candidate = secondary.prev();
+	while (!candidate.is('.primary')) {
+		candidate = candidate.prev();
+	}
+	return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+	blockName = block.children('.title').text();
+	content = block.children('.content').first().append(block.next('.colist'));
+	item = $('<div class="switch--item">' + blockName + '</div>');
+	blockSwitch.append(item);
+	return {'item': item, 'content': content};
+}
+
+function globalSwitch() {
+	$('.switch--item').each(function() {
+		var blockId = blockIdForSwitchItem($(this));
+		$(this).off('click');
+		$(this).on('click', function() {
+			selectedText = $(this).text()
+			window.localStorage.setItem(blockId, selectedText);
+			$(".switch--item").filter(function() {
+				return blockIdForSwitchItem($(this)) === blockId;
+			}).filter(function() {
+				return $(this).text() === selectedText;
+			}).each(function() {
+				select($(this))
+			});
+		});
+		if ($(this).text() === window.localStorage.getItem(blockId)) {
+			select($(this))
+		}
+	});
+}
+
+function blockIdForSwitchItem(item) {
+	idComponents = []
+	idComponents.push(item.text().toLowerCase());
+	item.siblings(".switch--item").each(function(index, sibling) {
+		idComponents.push($(sibling).text().toLowerCase());
+	});
+	return idComponents.sort().join("-")
+}
+
+function select(selected) {
+	selected.addClass('selected');
+	selected.siblings().removeClass('selected');
+	selectedContent = selected.parent().siblings(".content").eq(selected.index())
+	selectedContent.removeClass('hidden');
+	selectedContent.siblings().addClass('hidden');
+}
+
+$(addBlockSwitches);
+$(globalSwitch);
+</script>
+
+
+    
+
+
+
+    </body>
+</html>
+
