@@ -6,7 +6,7 @@ draft: false
 tags: ["hyper-v", "linux", "networking"]
 slug: "lab-vm" 
 title: "Build an isolated network with Hyper-V for a virtual lab"
-#series: ["Test site-to-site VPN for Azure"]
+series: ["Azure Site-to-Site VPN for DevTest"]
 ---
 
 Occasionally, I need to spin up a few local virtual machines on my Windows 10 laptop to test a networking concept. Building a practical multi-machine configuration can be challenging. 
@@ -121,7 +121,7 @@ The Virtual Switch provides network connectivity to the selected VMs in the virt
 
 Open *Virtual Switch Manager...* from the Hyper-V management console.
 
-image::/assets/lab-vm/VirtualSwitchNew.png[Hyper-V management console]
+image::/assets/lab-vm/VirtualSwitchNew.png[Hyper-V management console, width=100%]
 
 Press the *Create Virtual Switch* button and create a switch named *External (LAN)* and continue to configure the switch as per the rest of the settings below:
 

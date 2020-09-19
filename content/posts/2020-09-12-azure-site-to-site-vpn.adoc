@@ -1,0 +1,416 @@
+---
+authors: ["Philip Fourie"]
+date: "2020-09-19T8:42:00+12:00"
+language: en
+draft: false
+tags: ["azure", "linux", "networking", "ipsec"]
+slug: "azure-site-to-site-vpn" 
+title: "Build an Azure site-to-site VPN for DevTest"
+series: ["Azure Site-to-Site VPN for DevTest"]
+---
+
+Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads.
+https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal[Azure's site-to-site VPN] make it possible to extend your on-premises network to private virtual networks on the cloud.
+
+Usually, such a setup requires hardware that supports https://en.wikipedia.org/wiki/IPsec[IPsec] VPN.
+Azure site-to-site VPN requires a device that is IPsec IKEv2 compliant.
+Obviously, if you don't have a compatible VPN appliance, you are stuck, or if you have such an appliance but don't want to affect the rest of the network, you may need to consider a software-based IPsec VPN alternative.
+
+This post describes how to use Libreswan as a software-based IPSec VPN solution to connect to an Azure virtual gateway.
+
+WARNING: Although this configuration works well for DevTest purposes, it not recommended for production scenarios.
+
+The source code accompanying this article is available on https://github.com/philipf/azure-s2s-template[GitHub].
+
+== The Solution Design
+The design below shows a configuration that connects an Azure Virtual Network (VNet) with an on-premises network. This base configuration can be adjusted for your own specific needs.
+
+In this configuration `foxtrot` can route traffic between `192.168.1.0/24` and `192.168.3.32/24`, thereby connecting resources such as `Alice` and `vm-echo` with each other.
+
+image::/assets/azure-site-to-site-vpn/Azure-S2S-network.svg[Solution Design, align="center"]
+
+The _Left_ side of network use standard Azure site-to-site components while the _Right_ side of the network uses https://libreswan.org/[Libreswan], a free, open-source implementation of IPsec VPN.
+
+== Pre-requisites
+To build this configuration, you'll need the following:
+
+- An active Azure subscription.
+- Local network
+- A Linux instance to run the https://libreswan.org/:[Libreswan VPN software], preferably a dedicated VM. The Libreswan installation script in this article was tested against both Debian 10.05 and Ubuntu 20.04 (Unfortunately compilation of Libreswan failed on Ubuntu 18.04).
+- A modem/router to configure Firewall/NAT rules
+
+== Quick Start
+For the impatient, get going quickly by running the following steps, otherwise, skip to <<Provision Azure Resources>>:
+
+. Click the *Deploy to Azure* button to deploy the Azure S2S resources to your Azure subscription. 
+The content of this ARM template can be https://github.com/philipf/azure-s2s-template/blob/master/template.json[viewed here].
++ 
+{{<azdeploy "https://raw.githubusercontent.com/philipf/azure-s2s-template/master/template.json">}} 
+
+. Wait about *45 minutes* for the Azure Virtual Gateway to be provisioned. You'll need the pre-shared key (PSK) and the Virtual Gateway public IP (VGW VIP) from the previous step.
+
+. *Install Libreswan* on `Ubuntu 20.04` or `Debian 10.05`, by running:
++  
+[source, bash]
+----
+sudo sh -c "$(wget -qO- https://raw.githubusercontent.com/philipf/azure-s2s-template/master/install-libreswan.sh)"
+----
+. Port forward *UDP 4500* and *UDP 500* from the VGW VIP to `Foxtrot` on your modem/router.
+. *Test connectivity* by pinging `vm-echo` from `Foxtrot` and visa versa
+
+At this point, you should have a connected site-to-site VPN.
+
+== Provision Azure Resources
+Start with the following if you haven't performed the steps in the <<Quick Start>> section.
+
+Provision the Azure resources by:
+
+- Deploying the ARM template, the easier option.
+- Or by running the PowerShell script, the more programmable option.
+
+=== Using the ARM template
+By far, the easiest way to deploy the https://github.com/philipf/azure-s2s-template/blob/master/template.json[ARM template] is by clicking:
+ 
+{{<azdeploy "https://raw.githubusercontent.com/philipf/azure-s2s-template/master/template.json">}} 
+
+or deploy it with the https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-portal#deploy-resources-from-custom-template[Azure Portal],
+https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-cli#deploy-local-template[Azure CLI] 
+or https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-powershell#deploy-local-template[Azure PowerShell].
+
+=== Using PowerShell
+*Update the configuration variables* in the PowerShell script below and then run it to provision the Azure site-to-site resources.
+The script can be run from either the https://docs.microsoft.com/en-us/azure/cloud-shell/overview[Azure Cloud Shell] or locally with https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-4.6.1[Azure PowerShell]
+
+[source, powershell]
+.link:/assets/azure-site-to-site-vpn/azure-s2s-template/deploy-azure.ps1[deploy-azure.ps1, window="_blank"]
+----
+include::/src/static/assets/azure-site-to-site-vpn/azure-s2s-template/deploy-azure.ps1[]
+----
+<1> Supply your own significantly complex PSK, this key is used on both sides of the IPsec tunnel, and you'll will need it again as part of the Libreswan configuration.
+<2> By convention this https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-vpn-faq#do-i-need-a-gatewaysubnet[must be named] `GatewaySubnet`. :frowning:
+<3> Adjust it to your network requirements, keep in mind that these networks should not overlap and should be https://en.wikipedia.org/wiki/Private_network[private IP addresses].
+<4> Use `icanhazip.com` to obtain your public address, otherwise, supply your public IP address here.
+<5> Configured to use the `Basic` SKU, as it is the most affordable, it has limitations and is not meant for production use.
+
+NOTE: The provisioning of the Azure Virtual Gateway can take up to 45 minutes to complete, so this is a great place to take a break and grab a :coffee:.
+I advise against any :beer: at this point, as things can get tricky to troubleshoot if a simple mistake is made at this point. :wink: 
+
+
+=== Post-deployment
+A successful deployment should result in the following resources being deployed:
+
+image::/assets/azure-site-to-site-vpn/AzureResources.png[Azure Resources, align="left"]
+
+Obtain the Virtual network gateway's public IP (VIP) by using one of the following methods:
+
+[source, powershell]
+.Azure Powershell
+----
+(Get-AzPublicIpAddress -Name 'pip-vgw-devtest' -ResourceGroupName 'rg-virtual-gateway').IpAddress
+----
+
+[source, bash]
+.Azure CLI
+----
+az network public-ip show --name 'pip-vgw-devtest' -g 'rg-virtual-gateway' --query 'ipAddress' -o tsv
+----
+
+or look it up in the Azure Portal
+
+image::/assets/azure-site-to-site-vpn/AzurePortalVgwVip.png[VGW VIP, align="left"]
+
+
+== Firewall and NAT rules
+Libreswan requires standard IPsecv2 ports to be open on your firewall. These ports are:
+
+- UDP port 500 and
+- UDP port 4500
+
+This traffic has to be forwarded to the machine that runs Libreswan (`Foxtrot 192.168.1.2`)
+On my Asus wireless router I configure my WAN port forwarding as follows:
+
+image::/assets/azure-site-to-site-vpn/NAT.png[Router NAT rules]
+
+It is not required, but as an additional security measure, I have also locked down the source IP address to that of the VGW VIP.
+
+== Install and configure Libreswan
+Once the Azure Virtual Gateway deployment is complete, continue to install Libreswan on a Linux machine, preferably a clean and dedicated virtual machine.
+
+The installation script (`install-libreswan.sh`) downloads the source code, compiles, installs and configures version 3.32 of Libreswan.
+
+====
+For security reasons, support for DH2/modp1024 is removed at compile time from Libreswan https://download.libreswan.org/CHANGES[since v3.30] (February 13, 2020).  
+
+At the time of writing Azure S2S VPN connections are created by default with an IPsec/IKE policy that uses DH2.  :worried:
+https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-ipsecikepolicy-rm-powershell[Additional steps] can and should be taken to select a better IKE policy for production use.
+Unfortunately, the *Basic* SKU for VGWs does not support custom IPsec/IKE policies and leaves us with the only option to use a VPN solution that still supports DH2, which in my case is acceptable for DevTest.
+
+This script compiles the code with the `USE_DH2=true` flag to enable DH2/modp1024 that is required for Azure's default IPsec policy.
+Alternatively, one can upgrade to the next SKU (*VpnGw1*) that supports custom IPsec/IKE policies but it is https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/[more expensive].
+I want to keep the instructions as simple as possible, with the idea that once a successful S2S connection is created, it can be modified accordingly.
+====
+
+[source, bash]
+.link:/assets/azure-site-to-site-vpn/azure-s2s-template/install-libreswan.sh[install-libreswan.sh, window="_blank"]
+----
+include::/src/static/assets/azure-site-to-site-vpn/azure-s2s-template/install-libreswan.sh[]
+----
+
+<1> This is the pre-shared key that was supplied when the Azure Virtual Gateway was created.
+<2> Includes DH2 support at compile time.
+<3> For Debian/Ubuntu there is no `fipscheck` library, and `unbound` is build without `event api`.
+
+Libreswan uses the concept of 'left' and 'right' in its configuration files to distinguish between the two sides of the network; it doesn't matter which side is left or right.
+
+At this point, it should be possible to connect to resources located in the VNet, for example, ping `vm-echo` from `Foxtrot`:
+[source, bash]
+.Ping vm-echo
+----
+philipf@foxtrot:~$ ping 192.168.3.36
+PING 192.168.3.36 (192.168.3.36) 56(84) bytes of data.
+64 bytes from 192.168.3.36: icmp_seq=1 ttl=64 time=35.7 ms
+64 bytes from 192.168.3.36: icmp_seq=2 ttl=64 time=35.7 ms
+----
+
+and also after connecting with SSH to `vm-echo` it is possible to ping `Foxtrot`:
+[source, bash]
+.Ping Foxtrot
+----
+azureuser@vm-echo-dev:~$ ping 192.168.1.2
+PING 192.168.1.2 (192.168.1.2) 56(84) bytes of data.
+64 bytes from 192.168.1.2: icmp_seq=1 ttl=64 time=34.9 ms
+64 bytes from 192.168.1.2: icmp_seq=2 ttl=64 time=36.0 ms
+----
+
+=== IPsec troubleshooting
+Hopefully, you don't need to read this section :wink:, but if you are experiencing problems, I found the following commands and configuration files useful to debug problems with the IPsec service.
+
+[source, bash]
+.View ipsec configuration files
+----
+# View the left/right and encryption settings:
+cat /etc/ipsec.d/azure.conf
+
+# View the PSK
+cat /etc/ipsec.d/azure.secrets
+----
+
+[source, bash]
+.Useful ipsec commands
+----
+# View the current ipsec status
+sudo ipsec status
+
+# Confirm that the ipsec connection is loaded and active
+sudo ipsec status | grep "Total IPsec"
+# It should return:
+# 000 Total IPsec connections: loaded 1, active 1
+
+# Control the ipsec service 
+sudo ipsec stop
+sudo ipsec start
+sudo ipsec status
+
+# View the active tunnels (if any)
+sudo ipsec whack --trafficstatus
+# It should return:
+# 006 #7: "azureTunnel/1x1", type=ESP, add_time=1600483905, inBytes=3824, outBytes=2224, id='104.210.91.188'
+----
+
+
+== Routing
+Additional routing is required to enable communication between VNet resources and other local devices. For example `Foxtrot` connecting to `Alice` and vice versa.
+
+=== Configure Foxtrot for routing
+`Foxtrot` has access to both the `192.168.1.0/24` and `192.168.3.0/24` networks and therefore can be configured to route traffic between them.
+Update the `/etc/sysctl.conf` file with the setting below to enable IP forwarding and also to persist the setting when the VM restarts.
+
+[source]
+./etc/sysctl.conf
+----
+net.ipv4.ip_forward=1
+----
+
+Apply the change by running:
+
+[source, bash]
+----
+sudo sysctl -p /etc/sysctl.conf
+----
+
+Also, update `iptables` with the required masquerading rules.
+
+[source, bash]
+----
+sudo modprobe iptable_nat
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo apt install iptables-persistent
+----
+
+At this point, it should be possible to connect *from* `192.168.3.0/24` to other devices on the `192.168.1.0/24` network in addition to `192.168.1.2`.
+For example:
+
+[source, bash]
+----
+azureuser@vm-echo-dev:~$ ping 192.168.1.1
+PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.
+64 bytes from 192.168.1.1: icmp_seq=1 ttl=63 time=35.5 ms
+64 bytes from 192.168.1.1: icmp_seq=2 ttl=63 time=43.8 ms
+----
+
+It still not possible to route traffic *from* `Alice` and other `192.168.1.0/24` devices to the `192.168.3.0/24` network, but we will fix that next.
+
+=== Configure Alice (or the Router) for routing
+
+For this to work, a routing rule is required. To achieve this, we need to update the routing table that `Alice` is using. A networking rule can be configured on either the default gateway's routing table that `Alice` is using or directly on Alice's local routing table.
+To keep it simple, we will update the local routing table on Alice.
+
+Run these commands in PowerShell with *elevated privileges (Admin)*.
+
+First, get the network interface index `InterfaceIndex` for the network adapter that is connecting `Alice` to the `192.168.1.0/24` network.
+
+[source, powershell]
+----
+Get-NetRoute -DestinationPrefix 192.168.1.0/24 | Select-Object InterfaceIndex, InterfaceAlias
+
+InterfaceIndex InterfaceAlias
+-------------- --------------
+            14 vEthernet (External (LAN)) <1>
+----
+<1> My `InterfaceIndex` is 14 and yours will most likely differ
+
+Next, create a new routing rule by using the `InterfaceIndex` from the previous step.
+
+[source, powershell]
+----
+New-NetRoute `
+  -DestinationPrefix 192.168.3.0/24 `
+  -InterfaceIndex 14 ` 
+  -NextHop 192.168.1.2
+----
+
+To confirm that the route has been added, run:
+
+[source, powershell]
+----
+Get-NetRoute -DestinationPrefix 192.168.3.0/24
+
+ifIndex DestinationPrefix NextHop     RouteMetric ifMetric PolicyStore
+------- ----------------- -------     ----------- -------- -----------
+14      192.168.3.0/24    192.168.1.2         256 25       ActiveStore
+----
+
+And then we should be set and ready to do a connectivity test by pinging `vm-echo` *from* `Alice`.
+
+[source, powershell]
+----
+PS C:\Users\philipf> ping 192.168.3.36
+
+Pinging 192.168.3.36 with 32 bytes of data:
+Reply from 192.168.3.36: bytes=32 time=37ms TTL=63
+Reply from 192.168.3.36: bytes=32 time=37ms TTL=63
+----
+
+No further configuration is needed, and hopefully, you reached this point with a working site-to-site connection.  :champagne: 
+
+[TIP]
+====
+After you completed your testing, you may want to clean up the custom routing rules from `Alice` by running:
+
+[source, powershell]
+----
+Remove-NetRoute -DestinationPrefix 192.168.3.0/24
+----
+====
+
+== Final thoughts
+
+=== Alternative network topologies
+To keep things relatively simple, the instructions in this guide deploys the VPN host (Foxtrot) to the `192.168.1.0/24` network; I prefer to isolate my personal Lab network and have it on `192.168.2.0/24`. Running it on an isolated network gives me more versatility when moving between different physical networks (e.g. home and office networks).
+If you prefer such a setup, please refer to https://{{< ref "2020-08-29-lab-vm.adoc" >}}[Build an isolated network with Hyper-V for a virtual lab].
+Which means that `foxtrot` will have an IP address in the `192.168.2.0/24` network such as `192.168.2.2`.
+
+=== Basic SKU
+The Basic SKU is https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/[relatively affordable] at ~$26.28 US/month, but it has a couple of limitations to be aware of:
+
+- Bandwidth is limited at 100 Mbps
+- Custom IPsec policies are not supported, as mentioned in this article.
+
+Still, it useful for DevTest at this price range, as the next SKU is about five times the price at ~$138.70 US/month.
+Also, keep in mind that you will be charged for the duration that the Virtual Network Gateway is provisioned even if you don't have any active connections.
+https://azure.microsoft.com/en-us/pricing/details/bandwidth/[Outbound data] charges apply after 5GB /month.
+
+=== Security
+
+* Misconfiguration of your network can leave you open for attack, especially on the home network-side where many manual steps are required.  
+* Make sure to select a strong PSK (at least 20 characters strong). 
+* I also suggest the following when you are not actively using the S2S connection:
+** Shutdown your home VPN server
+** Remove your NAT rules
+** Switch off the Azure S2S connection 
+* If you have a dynamic public IP address at home, keep in mind that it may change and will break the IPsec tunnel. 
+
+== Appendix: IPsec policies
+In case you prefer to upgrade from the Basic SKU, to rather use custom IPsec policies, I provided the following scripts and configuration snippets than can be applied over the existing deployments.
+
+[source,powershell]
+----
+$Vgw = New-AzVirtualNetworkGateway `
+  -Name $VgwName `
+  -ResourceGroupName $ResourceGroup `
+  -Location $Location `
+  -IpConfigurations $GwIpConfig `
+  -GatewayType Vpn `
+  -VpnType RouteBased `
+  -GatewaySku VpnGw1 # <1>
+----
+<1> Swap Basic out for *VpnGw1*
+
+[source,powershell]
+----
+$ipsecPolicy = New-AzIpsecPolicy `
+-IkeEncryption AES256 `
+-IkeIntegrity SHA256 `
+-DhGroup DHGroup14 `
+-IpsecEncryption GCMAES256 `
+-IpsecIntegrity GCMAES256 `
+-PfsGroup None `
+-SALifeTimeSeconds 3600 
+
+New-AzVirtualNetworkGatewayConnection `
+  -Name $VgwConnectionName `
+  -ResourceGroupName $ResourceGroup `
+  -VirtualNetworkGateway1 $Vgw `
+  -LocalNetworkGateway2 $Lgw `
+  -Location $Location `
+  -ConnectionType IPsec `
+  -IpsecPolicies $ipsecPolicy ` # <1>
+  -SharedKey $SharedKey
+----
+<1> Supply a custom IPsec policy
+
+
+[source]
+.Update /etc/ipsec.d/azure.conf
+----
+conn azureTunnel
+    authby=secret
+    auto=start
+    dpdaction=restart
+    dpddelay=30
+    dpdtimeout=120
+    ike=aes256-sha256;modp2048 <1>
+    ikelifetime=3600s
+    ikev2=yes
+    keyingtries=3
+    pfs=yes
+    phase2alg=aes_gcm <2>
+    left=$vgw_vip
+    leftsubnets=$left_subnet
+    right=%defaultroute
+    rightsubnets=$right_subnet
+    salifetime=3600s
+    type=tunnel        
+----
+<1> Update the IKE encryption and integrity to match with `AES256` and `SHA256` specified in the `New-AzVirtualNetworkGatewayConnection` command
+<2> Update the IPsec ecryption and integrity to match with `GCMAES256` specified in the `New-AzVirtualNetworkGatewayConnection` command
