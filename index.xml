@@ -22,6 +22,12 @@
             <guid>https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/</guid>
             <description>Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads. Azure&amp;#8217;s site-to-site VPN make it possible to extend your on-premises network to private virtual networks on the cloud.
  Usually, such a setup requires hardware that supports IPsec VPN. Azure site-to-site VPN requires a device that is IPsec IKEv2 compliant.</description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>Build an Azure site-to-site VPN for DevTest</title>
+                <link>https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/</link>
+            </image>            
         </item>
         
         
@@ -36,6 +42,12 @@
 Before I forget this stuff (again), I better start writing it down!
  This blog&amp;#8217;s purpose is an exercise to improve my technical writing skills. And if I am lucky, maybe get the chance to help someone else out that is dealing with similar issues.
  My name is Philip Fourie, and I started writing software when GW-BASIC was what all the cool kids were doing.</description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>About</title>
+                <link>https://blog.notnot.ninja/about/</link>
+            </image>            
         </item>
         
         
@@ -50,6 +62,12 @@ Before I forget this stuff (again), I better start writing it down!
    The VM host can connect to the guest VMs.
   The guest VMs can connect to the host.
   The guest VMs can connect to each other.</description>
+
+            <image>
+                <url>https://blog.notnot.ninja/assets/lab-vm/EnableHyperV.png</url>
+                <title>Build an isolated network with Hyper-V for a virtual lab</title>
+                <link>https://blog.notnot.ninja/2020/08/29/lab-vm/</link>
+            </image>            
         </item>
         
         

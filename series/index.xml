@@ -21,6 +21,12 @@
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/series/azure-site-to-site-vpn-for-devtest/</guid>
             <description></description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>Azure Site-to-Site VPN for DevTest</title>
+                <link>https://blog.notnot.ninja/series/azure-site-to-site-vpn-for-devtest/</link>
+            </image>            
         </item>
         
         

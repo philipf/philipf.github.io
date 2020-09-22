@@ -21,6 +21,12 @@
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/tags/azure/</guid>
             <description></description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>azure</title>
+                <link>https://blog.notnot.ninja/tags/azure/</link>
+            </image>            
         </item>
         
         
@@ -32,6 +38,12 @@
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/tags/ipsec/</guid>
             <description></description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>ipsec</title>
+                <link>https://blog.notnot.ninja/tags/ipsec/</link>
+            </image>            
         </item>
         
         
@@ -43,6 +55,12 @@
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/tags/linux/</guid>
             <description></description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>linux</title>
+                <link>https://blog.notnot.ninja/tags/linux/</link>
+            </image>            
         </item>
         
         
@@ -54,6 +72,12 @@
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/tags/networking/</guid>
             <description></description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>networking</title>
+                <link>https://blog.notnot.ninja/tags/networking/</link>
+            </image>            
         </item>
         
         
@@ -65,6 +89,12 @@
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/tags/hyper-v/</guid>
             <description></description>
+
+            <image>
+                <url>https://blog.notnot.ninja</url>
+                <title>hyper-v</title>
+                <link>https://blog.notnot.ninja/tags/hyper-v/</link>
+            </image>            
         </item>
         
         
