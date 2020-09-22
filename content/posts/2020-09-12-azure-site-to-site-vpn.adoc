@@ -18,7 +18,7 @@ Obviously, if you don't have a compatible VPN appliance, you are stuck, or if yo
 
 This post describes how to use Libreswan as a software-based IPSec VPN solution to connect to an Azure virtual gateway.
 
-WARNING: Although this configuration works well for DevTest purposes, it not recommended for production scenarios.
+WARNING: Although this configuration works well for DevTest purposes, it is not recommended for production scenarios.
 
 The source code accompanying this article is available on https://github.com/philipf/azure-s2s-template[GitHub].
 
