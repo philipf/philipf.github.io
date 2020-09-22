@@ -20,7 +20,7 @@
             <pubDate>Sat, 19 Sep 2020 08:42:00 +1200</pubDate>
             <author>philip.fourie@gmail.com (Philip Fourie)</author>
             <guid>https://blog.notnot.ninja/2020/09/19/azure-site-to-site-vpn/</guid>
-            <description>Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads. Azure&amp;#8217;s site-to-site VPN make it possible to extend your on-premises network to private virtual networks on the cloud.
+            <description>Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads. Azure&amp;#8217;s site-to-site VPN makes it possible to extend your on-premises network to private virtual networks on the cloud.
  Usually, such a setup requires hardware that supports IPsec VPN. Azure site-to-site VPN requires a device that is IPsec IKEv2 compliant.</description>
 
             <image>
