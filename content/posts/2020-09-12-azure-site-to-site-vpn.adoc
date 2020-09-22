@@ -10,7 +10,7 @@ series: ["Azure Site-to-Site VPN for DevTest"]
 ---
 
 Integration testing in a hybrid cloud architecture can be challenging when you have to test between on-premises resources and cloud workloads.
-https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal[Azure's site-to-site VPN] make it possible to extend your on-premises network to private virtual networks on the cloud.
+https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal[Azure's site-to-site VPN] makes it possible to extend your on-premises network to private virtual networks on the cloud.
 
 Usually, such a setup requires hardware that supports https://en.wikipedia.org/wiki/IPsec[IPsec] VPN.
 Azure site-to-site VPN requires a device that is IPsec IKEv2 compliant.
@@ -29,7 +29,7 @@ In this configuration `foxtrot` can route traffic between `192.168.1.0/24` and `
 
 image::/assets/azure-site-to-site-vpn/Azure-S2S-network.svg[Solution Design, align="center"]
 
-The _Left_ side of network use standard Azure site-to-site components while the _Right_ side of the network uses https://libreswan.org/[Libreswan], a free, open-source implementation of IPsec VPN.
+The _Left_ side of the network uses standard Azure site-to-site components while the _Right_ side of the network uses https://libreswan.org/[Libreswan], a free, open-source implementation of IPsec VPN.
 
 == Pre-requisites
 To build this configuration, you'll need the following:
@@ -336,7 +336,7 @@ The Basic SKU is https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/[
 - Bandwidth is limited at 100 Mbps
 - Custom IPsec policies are not supported, as mentioned in this article.
 
-Still, it useful for DevTest at this price range, as the next SKU is about five times the price at ~$138.70 US/month.
+Still, it is useful for DevTest at this price range, as the next SKU is about five times the price at ~$138.70 US/month.
 Also, keep in mind that you will be charged for the duration that the Virtual Network Gateway is provisioned even if you don't have any active connections.
 https://azure.microsoft.com/en-us/pricing/details/bandwidth/[Outbound data] charges apply after 5GB /month.
 
