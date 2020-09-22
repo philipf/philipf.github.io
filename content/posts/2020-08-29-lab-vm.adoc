@@ -5,6 +5,7 @@ language: en
 draft: false
 tags: ["hyper-v", "linux", "networking"]
 slug: "lab-vm" 
+image: "/assets/lab-vm/EnableHyperV.png"
 title: "Build an isolated network with Hyper-V for a virtual lab"
 series: ["Azure Site-to-Site VPN for DevTest"]
 ---
